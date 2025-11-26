@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Login System</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    </head>
+    <style>
+        .bg-purple {
+            background: purple;
+        }
+    </style>
+    <body>
+        <nav class="navbar navbar-expand-lg bg-purple navbar-light">
+            <div class="container">
+                <a href="#" class="navbar-brand text-white">Asad Developer</a>
+                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#asad" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="asad">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="home.php" class="nav-link text-white">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="index.php">Login</a></li>
+                                <li><a class="dropdown-item" href="register.php">Register</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
