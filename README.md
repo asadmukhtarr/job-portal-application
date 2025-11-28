@@ -3,6 +3,13 @@
     - First Practice: Core PHP + Bootstrap ( Login System ) + Mysql
     - Second Practice : Laravel + Bootstrap/Tailwind + Mysql
     - Job Application Portal Website ..
+# Laravel Guildines
+    - Xampp Download and installed 
+    - Composer Download and installed 
+    - Laravel Installation steps
+        - Step # 1: composer global require laravel/installer ( Only Once ) ..
+        - Step # 2: Run this command in c:xampp/htdocs/ : laravel new project-name
+
 # General Interview Questions For Web Developer?
     - Current version of bootstrap ? 
     - Meaning of these class in bootstrap? lg : Large , md: Medium , sm: Small , bg: background
