@@ -36,3 +36,4 @@
     - Beginner PHP : https://www.youtube.com/watch?v=SMhcOUwRCt8&list=PLPvf-1cCig-HVjByU6jLou-IRlGpsGA61&pp=0gcJCbAEOCosWNin
     - Intermediate Level PHP : https://www.youtube.com/watch?v=yO93BEKYdl0&list=PLPvf-1cCig-GmXtSu5fWVJEfL9DZfuxqi
     - Intermediate Level Php : https://www.youtube.com/watch?v=Php0DqiXmBw&list=PLPvf-1cCig-H0uCFYiVonRZKaIuupGYRG
+    - Github Series: https://www.youtube.com/watch?v=jWvZzBsph0o&list=PLPvf-1cCig-EPr2eW5H4mceJlMUpb7U_F
