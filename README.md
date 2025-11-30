@@ -1,4 +1,20 @@
 # Php And Laravel development ..
+# Project Documentation .. 
+    - Before Login	 : Guest Side / Client Side : Today Date: 30/Nov/2025
+		- Home
+		- Available Jobs ( Fillter )
+		- Single Job Page
+		- About 
+		- Companies 
+		- Services
+		- Contact
+		- Login/Register
+	- After Login
+		- Main Dashboard
+		- Your Applied Jobs / Save Jobs
+		- Your Jobs ( Create Comapny / Post Job )
+		- Settings
+		- Profile
 # Project Description 
     - First Practice: Core PHP + Bootstrap ( Login System ) + Mysql
     - Second Practice : Laravel + Bootstrap/Tailwind + Mysql
@@ -37,3 +53,11 @@
     - Intermediate Level PHP : https://www.youtube.com/watch?v=yO93BEKYdl0&list=PLPvf-1cCig-GmXtSu5fWVJEfL9DZfuxqi
     - Intermediate Level Php : https://www.youtube.com/watch?v=Php0DqiXmBw&list=PLPvf-1cCig-H0uCFYiVonRZKaIuupGYRG
     - Github Series: https://www.youtube.com/watch?v=jWvZzBsph0o&list=PLPvf-1cCig-EPr2eW5H4mceJlMUpb7U_F
+# Auth Development Steps:
+    - Step # 1: composer require laravel/ui
+    - Step # 2: php artisan ui vue --auth ( Download nodejs and install)
+    - Step # 3: php artisan migrate
+    - step # 4: npm install | npm install --force
+    - Step # 5: npm run dev
+# AI Chat :
+    - https://chatgpt.com/share/692c4d29-6648-8009-bbc9-201b111d4fca
