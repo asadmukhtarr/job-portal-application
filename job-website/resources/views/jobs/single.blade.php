@@ -1,5 +1,5 @@
 @extends('layouts.header')
-@section('title','About')
+@section('title','Job')
 @section('content')
-<h2>Hello Welcome page</h2>
+<h2>Hello Job Title page</h2>
 @endsection

@@ -1,14 +1,14 @@
 # Php And Laravel development ..
 # Project Documentation .. 
     - Before Login	 : Guest Side / Client Side : Today Date: 30/Nov/2025
-		- Home
+		- Home (welcome.php)
 		- Available Jobs ( Fillter )
 		- Single Job Page
-		- About 
+		- About (created)
 		- Companies 
-		- Services
-		- Contact
-		- Login/Register
+		- Services (created)
+		- Contact (created)
+		- Login/Register (created)
 	- After Login
 		- Main Dashboard
 		- Your Applied Jobs / Save Jobs
@@ -61,3 +61,8 @@
     - Step # 5: npm run dev
 # AI Chat :
     - https://chatgpt.com/share/692c4d29-6648-8009-bbc9-201b111d4fca
+    - https://chat.deepseek.com/share/tztz926wrnyet72cfr
+
+# Project Development Proccess ..
+    - Step # 1 : Project Planning 
+    - Step # 2 : Create All Required Pages (Blade Files ) + Routes ..
