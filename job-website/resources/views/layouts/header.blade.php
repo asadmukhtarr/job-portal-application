@@ -324,9 +324,9 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('welcome') ? 'active' : '' }}" href="{{ route('welcome') }}">
+                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ route('welcome') }}">
                             <i class="fa fa-home"></i>
-                            Home
+                            Home 
                         </a>
                     </li>
                     <li class="nav-item">
@@ -336,7 +336,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('jobs') ? 'active' : '' }}" href="{{ route('jobs') }}">
+                        <a class="nav-link {{ request()->is('available-jobs') ? 'active' : '' }}" href="{{ route('jobs') }}">
                             <i class="fa fa-briefcase"></i>
                             Available Jobs
                         </a>
@@ -359,14 +359,35 @@
                 <div class="d-flex align-items-center">
                     <!-- Separate Login/Register Buttons -->
                     <div class="account-buttons d-none d-lg-flex">
-                        <a href="{{ route('login') }}" class="btn btn-login me-2">
-                            <i class="fa fa-sign-in"></i>
-                            Login
-                        </a>
-                        <a href="{{ route('register') }}" class="btn btn-register">
-                            <i class="fa fa-user-plus"></i>
-                            Register
-                        </a>
+                        @if(!Auth::check()) 
+                            <a href="{{ route('login') }}" class="btn btn-login me-2">
+                                <i class="fa fa-sign-in"></i>
+                                Login
+                            </a>
+                            <a href="{{ route('register') }}" class="btn btn-register">
+                                <i class="fa fa-user-plus"></i>
+                                Register
+                            </a>
+                        @else 
+                            <div class="dropdown">
+                                <a class="btn btn-register dropdown-toggle d-flex align-items-center" 
+                                href="#" 
+                                role="button" 
+                                id="profileDropdown" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                                    <i class="fa fa-user-circle me-2"></i>
+                                    {{ Auth::user()->name }}
+                                </a>
+
+                                <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                                    <li><a class="dropdown-item" href="/">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="/">Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="/">Logout</a></li>
+                                </ul>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

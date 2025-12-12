@@ -31,6 +31,9 @@
     - Views : Resources\views\ : Frontend Work ...
     - Route : If for website (web.php), If for api ( api.php ), if for console (console.php) ..
     - Jinty Database Tables hun gay ? Models or utny hi migrations ..
+    - If you want to write if condition in blade file (view) in laravel then it will be like this @if() @else @endif
+    - If you want to write if condition instead of blade file then it will be if() { } else { }
+    - folder ko namespace kehty hein ...
 
 # General Interview Questions For Web Developer?
     - Current version of bootstrap ? 
@@ -43,6 +46,7 @@
     - In laravel Auth meaning is Login System ..
     - What is blade file in laravel? Views files are called blade file in laravel..
     - What is purpose of view() function in laravel? This function take my application proccess to view folder ..
+    - What is command for get all route list: php artisan route:list
 # Github Guidlines 
     - For Load Data : git add .
     - For Commit Data : git commit -m "Message"
