@@ -1,5 +1,5 @@
 @extends('layouts.header')
-@section('title','Senior Frontend Developer (React) - TechVision Inc.')
+@section('title', ($vacancy->title ?? 'Job Details') . ' - ' . ($vacancy->company->name ?? 'Company'))
 @section('content')
 <style>
     /* Additional CSS for Single Job Page */
@@ -158,6 +158,21 @@
     
     .badge-featured {
         background-color: #f59e0b;
+        color: white;
+    }
+    
+    .badge-parttime {
+        background-color: #8b5cf6;
+        color: white;
+    }
+    
+    .badge-contract {
+        background-color: #f97316;
+        color: white;
+    }
+    
+    .badge-internship {
+        background-color: #06b6d4;
         color: white;
     }
     
@@ -490,9 +505,8 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('welcome') }}" class="text-decoration-none text-main">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('jobs') }}" class="text-decoration-none text-main">Available Jobs</a></li>
-                        <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-main">Technology</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Senior Frontend Developer</li>
+                        <li class="breadcrumb-item"><a href="{{ route('client.jobs') }}" class="text-decoration-none text-main">Available Jobs</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $vacancy->title ?? 'Job Details' }}</li>
                     </ol>
                 </nav>
             </div>
@@ -506,33 +520,74 @@
         <div class="row">
             <!-- Main Content -->
             <div class="col-lg-8">
+                @if($message = session()->get('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ $message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+                @if($message = session()->get('warning'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ $message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <!-- Job Header -->
                 <div class="job-header-card">
                     <div class="d-flex flex-column flex-md-row align-items-start">
                         <div class="company-logo-large">
-                            <i class="fa fa-building"></i>
+                            @if($vacancy->company && $vacancy->company->logo)
+                                <img src="{{ asset('storage/' . $vacancy->company->logo) }}" alt="{{ $vacancy->company->name ?? 'Company Logo' }}" style="max-width: 80px; max-height: 80px;">
+                            @else
+                                <i class="fa fa-building"></i>
+                            @endif
                         </div>
                         <div class="flex-grow-1">
-                            <h1 class="job-title-main">Senior Frontend Developer (React)</h1>
-                            <p class="company-name-large">TechVision Inc.</p>
+                            <h1 class="job-title-main">{{ $vacancy->title ?? 'Job Title' }}</h1>
+                            <p class="company-name-large">
+                                @if($vacancy->company)
+                                    {{ $vacancy->company->name ?? 'Company Name' }}
+                                @else
+                                    Company Name
+                                @endif
+                            </p>
                             
                             <div class="job-badges">
-                                <span class="job-badge badge-fulltime">Full Time</span>
-                                <span class="job-badge badge-remote">Remote</span>
-                                <span class="job-badge badge-urgent">Urgent Hiring</span>
-                                <span class="job-badge badge-featured">Featured</span>
+                                @php
+                                    $typeClass = 'badge-fulltime';
+                                    if(str_contains(strtolower($vacancy->type ?? ''), 'remote')) {
+                                        $typeClass = 'badge-remote';
+                                    } elseif(str_contains(strtolower($vacancy->type ?? ''), 'part')) {
+                                        $typeClass = 'badge-parttime';
+                                    } elseif(str_contains(strtolower($vacancy->type ?? ''), 'contract')) {
+                                        $typeClass = 'badge-contract';
+                                    } elseif(str_contains(strtolower($vacancy->type ?? ''), 'intern')) {
+                                        $typeClass = 'badge-internship';
+                                    }
+                                @endphp
+                                <span class="job-badge {{ $typeClass }}">{{ $vacancy->type ?? 'Full Time' }}</span>
+                                
+                                @if($vacancy->status == 2)
+                                    <span class="job-badge badge-featured">Featured</span>
+                                @endif
+                                
+                                @if($vacancy->vacancies <= 1)
+                                    <span class="job-badge badge-urgent">Urgent Hiring</span>
+                                @endif
                             </div>
                             
                             <div class="job-meta-grid">
+                                @if($vacancy->salary)
                                 <div class="meta-item">
                                     <div class="meta-icon">
                                         <i class="fa fa-money"></i>
                                     </div>
                                     <div class="meta-content">
                                         <h4>Salary</h4>
-                                        <p>$120,000 - $150,000 / year</p>
+                                        <p>{{ $vacancy->salary }}</p>
                                     </div>
                                 </div>
+                                @endif
                                 
                                 <div class="meta-item">
                                     <div class="meta-icon">
@@ -540,176 +595,99 @@
                                     </div>
                                     <div class="meta-content">
                                         <h4>Location</h4>
-                                        <p>Remote (Global) / San Francisco, CA</p>
+                                        <p>{{ $vacancy->location ?? 'Location not specified' }}</p>
                                     </div>
                                 </div>
                                 
+                                @if($vacancy->experience)
                                 <div class="meta-item">
                                     <div class="meta-icon">
                                         <i class="fa fa-clock-o"></i>
                                     </div>
                                     <div class="meta-content">
                                         <h4>Experience</h4>
-                                        <p>5+ years required</p>
+                                        <p>{{ $vacancy->experience }}</p>
                                     </div>
                                 </div>
+                                @endif
                                 
+                                @if($vacancy->vacancies)
                                 <div class="meta-item">
                                     <div class="meta-icon">
-                                        <i class="fa fa-graduation-cap"></i>
+                                        <i class="fa fa-users"></i>
                                     </div>
                                     <div class="meta-content">
-                                        <h4>Education</h4>
-                                        <p>Bachelor's Degree Preferred</p>
+                                        <h4>Positions</h4>
+                                        <p>{{ $vacancy->vacancies }} vacancy(ies)</p>
                                     </div>
                                 </div>
+                                @endif
                             </div>
                             
                             <div class="application-stats">
                                 <div class="stat-item">
-                                    <div class="stat-number">247</div>
+                                    <div class="stat-number">{{ $vacancy->views ?? '0' }}</div>
                                     <div class="stat-label">Views</div>
                                 </div>
                                 <div class="stat-item">
-                                    <div class="stat-number">89</div>
+                                    <div class="stat-number">0</div>
                                     <div class="stat-label">Applications</div>
                                 </div>
+                                @if($vacancy->created_at)
                                 <div class="stat-item">
-                                    <div class="stat-number">5</div>
-                                    <div class="stat-label">Days Left</div>
+                                    <div class="stat-number">{{ $vacancy->created_at->diffForHumans() }}</div>
+                                    <div class="stat-label">Posted</div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-number">Easy</div>
-                                    <div class="stat-label">Apply</div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Job Description -->
+                @if($vacancy->description)
                 <div class="job-content-card">
                     <h2 class="section-title">Job Description</h2>
                     <div class="job-description">
-                        <p>We are seeking a talented Senior Frontend Developer to join our innovative team at TechVision Inc. In this role, you'll be responsible for building cutting-edge web applications that serve millions of users worldwide.</p>
-                        
-                        <p>As a Senior Frontend Developer, you'll work closely with our design and backend teams to create responsive, accessible, and performant user interfaces. You'll have the opportunity to mentor junior developers and contribute to architectural decisions.</p>
-                        
-                        <h4 class="mt-4 mb-3 text-main">Key Responsibilities:</h4>
-                        <ul class="requirements-list">
-                            <li><i class="fa fa-check-circle"></i> Develop and maintain high-quality, scalable frontend applications using React and TypeScript</li>
-                            <li><i class="fa fa-check-circle"></i> Collaborate with UX/UI designers to implement pixel-perfect designs</li>
-                            <li><i class="fa fa-check-circle"></i> Optimize applications for maximum speed and scalability</li>
-                            <li><i class="fa fa-check-circle"></i> Write clean, maintainable, and well-documented code</li>
-                            <li><i class="fa fa-check-circle"></i> Participate in code reviews and provide constructive feedback</li>
-                            <li><i class="fa fa-check-circle"></i> Implement responsive designs that work across all devices</li>
-                            <li><i class="fa fa-check-circle"></i> Integrate with backend APIs and third-party services</li>
-                        </ul>
+                        {!! nl2br(e($vacancy->description)) !!}
                     </div>
                 </div>
+                @endif
                 
                 <!-- Requirements -->
+                @if($vacancy->requirements)
                 <div class="job-content-card">
                     <h2 class="section-title">Requirements</h2>
-                    <ul class="requirements-list">
-                        <li><i class="fa fa-check"></i> 5+ years of professional experience with React and modern JavaScript/TypeScript</li>
-                        <li><i class="fa fa-check"></i> Strong proficiency in React, Redux, and React Hooks</li>
-                        <li><i class="fa fa-check"></i> Experience with Next.js and server-side rendering</li>
-                        <li><i class="fa fa-check"></i> Solid understanding of HTML5, CSS3, and responsive design</li>
-                        <li><i class="fa fa-check"></i> Experience with testing frameworks (Jest, React Testing Library)</li>
-                        <li><i class="fa fa-check"></i> Knowledge of GraphQL and REST APIs</li>
-                        <li><i class="fa fa-check"></i> Familiarity with CI/CD pipelines and deployment processes</li>
-                        <li><i class="fa fa-check"></i> Excellent problem-solving and communication skills</li>
-                    </ul>
-                    
-                    <h4 class="mt-4 mb-3 text-main">Nice to Have:</h4>
-                    <ul class="requirements-list">
-                        <li><i class="fa fa-star"></i> Experience with micro-frontend architecture</li>
-                        <li><i class="fa fa-star"></i> Knowledge of WebSocket and real-time applications</li>
-                        <li><i class="fa fa-star"></i> Familiarity with AWS or other cloud platforms</li>
-                        <li><i class="fa fa-star"></i> Open source contributions or personal projects</li>
-                    </ul>
+                    <div class="job-description">
+                        {!! nl2br(e($vacancy->requirements)) !!}
+                    </div>
                 </div>
+                @endif
                 
                 <!-- Skills Required -->
+                @if($vacancy->skills)
                 <div class="job-content-card">
                     <h2 class="section-title">Required Skills</h2>
                     <div class="skills-tags">
-                        <span class="skill-tag">React</span>
-                        <span class="skill-tag">TypeScript</span>
-                        <span class="skill-tag">Next.js</span>
-                        <span class="skill-tag">Redux</span>
-                        <span class="skill-tag">GraphQL</span>
-                        <span class="skill-tag">HTML5/CSS3</span>
-                        <span class="skill-tag">Jest</span>
-                        <span class="skill-tag">REST APIs</span>
-                        <span class="skill-tag">Responsive Design</span>
-                        <span class="skill-tag">Webpack</span>
-                        <span class="skill-tag">Git</span>
-                        <span class="skill-tag">AWS</span>
+                        @php
+                            $skills = explode(',', $vacancy->skills);
+                        @endphp
+                        @foreach($skills as $skill)
+                            <span class="skill-tag">{{ trim($skill) }}</span>
+                        @endforeach
                     </div>
                 </div>
-                
-                <!-- Benefits -->
-                <div class="job-content-card">
-                    <h2 class="section-title">Benefits & Perks</h2>
-                    <div class="job-details-grid">
-                        <div class="detail-item">
-                            <h5><i class="fa fa-heartbeat me-2"></i> Health & Wellness</h5>
-                            <p class="mb-0">Comprehensive medical, dental, and vision insurance</p>
-                        </div>
-                        <div class="detail-item">
-                            <h5><i class="fa fa-money me-2"></i> Financial Benefits</h5>
-                            <p class="mb-0">Competitive salary, equity options, 401(k) matching</p>
-                        </div>
-                        <div class="detail-item">
-                            <h5><i class="fa fa-plane me-2"></i> Time Off</h5>
-                            <p class="mb-0">Unlimited PTO, paid parental leave, flexible holidays</p>
-                        </div>
-                        <div class="detail-item">
-                            <h5><i class="fa fa-graduation-cap me-2"></i> Learning & Growth</h5>
-                            <p class="mb-0">$3,000 annual learning budget, conference allowances</p>
-                        </div>
-                        <div class="detail-item">
-                            <h5><i class="fa fa-home me-2"></i> Remote Work</h5>
-                            <p class="mb-0">Fully remote, home office stipend, co-working spaces</p>
-                        </div>
-                        <div class="detail-item">
-                            <h5><i class="fa fa-users me-2"></i> Team Culture</h5>
-                            <p class="mb-0">Team retreats, wellness programs, company events</p>
-                        </div>
-                    </div>
-                </div>
+                @endif
                 
                 <!-- About Company -->
+                @if($vacancy->company && $vacancy->company->description)
                 <div class="job-content-card">
-                    <h2 class="section-title">About TechVision Inc.</h2>
+                    <h2 class="section-title">About {{ $vacancy->company->name }}</h2>
                     <div class="job-description">
-                        <p>TechVision Inc. is a leading technology company specializing in innovative software solutions for businesses worldwide. Founded in 2015, we've grown to serve over 10,000 clients across 50+ countries.</p>
-                        
-                        <p>Our mission is to empower businesses through technology. We believe in creating products that make a real difference in people's lives while fostering a culture of innovation, collaboration, and continuous learning.</p>
-                        
-                        <div class="mt-4">
-                            <h5 class="text-main">Company Culture:</h5>
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <ul class="requirements-list">
-                                        <li><i class="fa fa-check text-success"></i> Flexible remote work policy</li>
-                                        <li><i class="fa fa-check text-success"></i> Transparent communication</li>
-                                        <li><i class="fa fa-check text-success"></i> Emphasis on work-life balance</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="requirements-list">
-                                        <li><i class="fa fa-check text-success"></i> Diverse and inclusive environment</li>
-                                        <li><i class="fa fa-check text-success"></i> Regular team-building activities</li>
-                                        <li><i class="fa fa-check text-success"></i> Continuous learning opportunities</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                        {!! nl2br(e($vacancy->company->description)) !!}
                     </div>
                 </div>
+                @endif
             </div>
             
             <!-- Sidebar -->
@@ -717,47 +695,69 @@
                 <!-- Apply Now Card -->
                 <div class="sidebar-widget">
                     <h3 class="widget-title">Apply for this Job</h3>
-                    <button class="btn btn-apply-main">
-                        <i class="fa fa-paper-plane"></i>
-                        Apply Now
-                    </button>
+                    @if(Auth::check() && Auth::id() == $vacancy->user_id)
+                     <label class="text-danger"><b>   <i class="fa fa-ban"></i> You Cant Apply On Your Own Job</b></label>
+                    @else 
+                        @if(empty(Auth::user()->profile->resume))
+                             <label class="text-danger"><b>   <i class="fa fa-ban"></i> Upload Your Resume For Apply Job</b></label>
+                        @else 
+                            @if(!empty(App\Models\applicant::where('vacancy_id',$vacancy->id)->where('user_id',Auth::id())->first()))
+                            <label class="text-success">
+                                <b><i class="fa fa-check-square"></i> Already Applied</b>
+                            </label>
+                            @else 
+                                <a href="{{ route('apply.online',$vacancy->id) }}">
+                                    <button class="btn btn-apply-main" id="applyButton">
+                                        <i class="fa fa-paper-plane"></i>
+                                        Apply Now
+                                    </button>
+                                </a>
+                            @endif
+                        @endif
+                    @endif
                     <button class="btn btn-save-job">
                         <i class="fa fa-bookmark"></i>
                         Save for Later
                     </button>
                     
+                    @if($vacancy->created_at)
                     <div class="mt-4 pt-3 border-top">
-                        <h6 class="text-main mb-3">Application Deadline</h6>
+                        <h6 class="text-main mb-3">Posted Date</h6>
                         <div class="d-flex align-items-center">
                             <i class="fa fa-calendar text-main me-2"></i>
-                            <span>December 30, 2024</span>
+                            <span>{{ $vacancy->created_at->format('F d, Y') }}</span>
                         </div>
-                        <div class="progress mt-2" style="height: 8px;">
-                            <div class="progress-bar bg-main" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted">5 days remaining</small>
                     </div>
+                    @endif
                 </div>
                 
                 <!-- Company Info -->
+                @if($vacancy->company)
                 <div class="sidebar-widget">
                     <h3 class="widget-title">Company Information</h3>
                     <div class="company-info">
                         <div class="company-info-logo">
-                            <i class="fa fa-building"></i>
+                            @if($vacancy->company->logo)
+                                <img src="{{ asset('storage/' . $vacancy->company->logo) }}" alt="{{ $vacancy->company->name }}" style="max-width: 40px; max-height: 40px;">
+                            @else
+                                <i class="fa fa-building"></i>
+                            @endif
                         </div>
                         <div class="company-details">
-                            <h4>TechVision Inc.</h4>
-                            <p><i class="fa fa-map-marker text-main me-1"></i> San Francisco, CA</p>
-                            <p><i class="fa fa-globe text-main me-1"></i> techvision.com</p>
-                            <p><i class="fa fa-users text-main me-1"></i> 500+ employees</p>
-                            <a href="#" class="view-company-btn">
-                                View Company Profile
-                                <i class="fa fa-arrow-right"></i>
-                            </a>
+                            <h4>{{ $vacancy->company->name }}</h4>
+                            @if($vacancy->company->location)
+                            <p><i class="fa fa-map-marker text-main me-1"></i> {{ $vacancy->company->location }}</p>
+                            @endif
+                            @if($vacancy->company->website)
+                            <p><i class="fa fa-globe text-main me-1"></i> {{ $vacancy->company->website }}</p>
+                            @endif
+                            @if($vacancy->company->size)
+                            <p><i class="fa fa-users text-main me-1"></i> {{ $vacancy->company->size }} employees</p>
+                            @endif
                         </div>
                     </div>
                 </div>
+                @endif
                 
                 <!-- Job Details -->
                 <div class="sidebar-widget">
@@ -767,42 +767,50 @@
                             <i class="fa fa-briefcase text-main"></i>
                             <div>
                                 <strong>Job Type:</strong>
-                                <div>Full Time</div>
+                                <div>{{ $vacancy->type ?? 'Not specified' }}</div>
                             </div>
                         </li>
+                        @if($vacancy->experience)
                         <li>
                             <i class="fa fa-clock-o text-main"></i>
                             <div>
                                 <strong>Experience Level:</strong>
-                                <div>Senior (5+ years)</div>
+                                <div>{{ $vacancy->experience }}</div>
                             </div>
                         </li>
+                        @endif
+                        @if($vacancy->location)
                         <li>
-                            <i class="fa fa-graduation-cap text-main"></i>
+                            <i class="fa fa-map-marker text-main"></i>
                             <div>
-                                <strong>Education:</strong>
-                                <div>Bachelor's Degree Preferred</div>
+                                <strong>Location:</strong>
+                                <div>{{ $vacancy->location }}</div>
                             </div>
                         </li>
+                        @endif
+                        @if($vacancy->salary)
                         <li>
-                            <i class="fa fa-industry text-main"></i>
+                            <i class="fa fa-money text-main"></i>
                             <div>
-                                <strong>Industry:</strong>
-                                <div>Technology / Software</div>
+                                <strong>Salary:</strong>
+                                <div>{{ $vacancy->salary }}</div>
                             </div>
                         </li>
+                        @endif
+                        @if($vacancy->created_at)
                         <li>
                             <i class="fa fa-calendar text-main"></i>
                             <div>
                                 <strong>Posted:</strong>
-                                <div>December 1, 2024</div>
+                                <div>{{ $vacancy->created_at->format('M d, Y') }}</div>
                             </div>
                         </li>
+                        @endif
                         <li>
                             <i class="fa fa-refresh text-main"></i>
                             <div>
                                 <strong>Job ID:</strong>
-                                <div>TECH-78945</div>
+                                <div>#{{ $vacancy->id }}</div>
                             </div>
                         </li>
                     </ul>
@@ -812,16 +820,16 @@
                 <div class="sidebar-widget">
                     <h3 class="widget-title">Share This Job</h3>
                     <div class="share-job">
-                        <a href="#" class="share-btn share-facebook">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ url()->current() }}" target="_blank" class="share-btn share-facebook">
                             <i class="fa fa-facebook"></i>
                         </a>
-                        <a href="#" class="share-btn share-twitter">
+                        <a href="https://twitter.com/intent/tweet?url={{ url()->current() }}&text={{ urlencode($vacancy->title ?? 'Check out this job') }}" target="_blank" class="share-btn share-twitter">
                             <i class="fa fa-twitter"></i>
                         </a>
-                        <a href="#" class="share-btn share-linkedin">
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ url()->current() }}&title={{ urlencode($vacancy->title ?? 'Job Opportunity') }}" target="_blank" class="share-btn share-linkedin">
                             <i class="fa fa-linkedin"></i>
                         </a>
-                        <a href="#" class="share-btn share-whatsapp">
+                        <a href="https://wa.me/?text={{ urlencode(($vacancy->title ?? 'Check out this job') . ' ' . url()->current()) }}" target="_blank" class="share-btn share-whatsapp">
                             <i class="fa fa-whatsapp"></i>
                         </a>
                     </div>
@@ -830,7 +838,7 @@
                 <!-- Report Job -->
                 <div class="sidebar-widget">
                     <div class="text-center">
-                        <a href="#" class="text-decoration-none text-muted">
+                        <a href="#" class="text-decoration-none text-muted" data-bs-toggle="modal" data-bs-target="#reportJobModal">
                             <i class="fa fa-flag me-1"></i>
                             Report this job
                         </a>
@@ -841,66 +849,55 @@
     </div>
 </section>
 
-<!-- Similar Jobs -->
-<section class="similar-jobs">
-    <div class="container">
-        <h2 class="section-title text-center">Similar Jobs You Might Like</h2>
-        <p class="text-center mb-5">Browse other opportunities that match your skills and interests</p>
-        
-        <div class="row">
-            <div class="col-md-4">
-                <div class="similar-job-card">
-                    <h5>React Developer</h5>
-                    <p class="similar-job-company">Digital Solutions LLC</p>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="badge bg-main">Remote</span>
-                        <span class="badge bg-success">$100k - $130k</span>
-                    </div>
-                    <div class="similar-job-meta">
-                        <span><i class="fa fa-map-marker text-main me-1"></i> Remote</span>
-                        <span><i class="fa fa-clock-o text-main me-1"></i> Full Time</span>
-                    </div>
-                </div>
+<!-- Report Job Modal -->
+<div class="modal fade" id="reportJobModal" tabindex="-1" aria-labelledby="reportJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportJobModalLabel">Report This Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            
-            <div class="col-md-4">
-                <div class="similar-job-card">
-                    <h5>Frontend Engineer</h5>
-                    <p class="similar-job-company">InnovateTech Corp</p>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="badge bg-main">Hybrid</span>
-                        <span class="badge bg-success">$110k - $140k</span>
+            <div class="modal-body">
+                <p>Please select the reason for reporting this job:</p>
+                <form id="reportJobForm">
+                    <div class="mb-3">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="reportReason" id="reason1" value="fake">
+                            <label class="form-check-label" for="reason1">
+                                Fake job posting
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="reportReason" id="reason2" value="spam">
+                            <label class="form-check-label" for="reason2">
+                                Spam or misleading information
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="reportReason" id="reason3" value="discrimination">
+                            <label class="form-check-label" for="reason3">
+                                Discrimination or offensive content
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="reportReason" id="reason4" value="other">
+                            <label class="form-check-label" for="reason4">
+                                Other
+                            </label>
+                        </div>
                     </div>
-                    <div class="similar-job-meta">
-                        <span><i class="fa fa-map-marker text-main me-1"></i> New York, NY</span>
-                        <span><i class="fa fa-clock-o text-main me-1"></i> Full Time</span>
+                    <div class="mb-3">
+                        <label for="reportDetails" class="form-label">Additional details (optional)</label>
+                        <textarea class="form-control" id="reportDetails" rows="3"></textarea>
                     </div>
-                </div>
+                </form>
             </div>
-            
-            <div class="col-md-4">
-                <div class="similar-job-card">
-                    <h5>JavaScript Developer</h5>
-                    <p class="similar-job-company">WebCraft Studios</p>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="badge bg-main">Remote</span>
-                        <span class="badge bg-success">$90k - $120k</span>
-                    </div>
-                    <div class="similar-job-meta">
-                        <span><i class="fa fa-map-marker text-main me-1"></i> Remote</span>
-                        <span><i class="fa fa-clock-o text-main me-1"></i> Contract</span>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger">Submit Report</button>
             </div>
-        </div>
-        
-        <div class="text-center mt-4">
-            <a href="{{ route('jobs') }}" class="btn btn-apply-main" style="width: auto; padding: 12px 30px;">
-                <i class="fa fa-briefcase me-2"></i>
-                View All Similar Jobs
-            </a>
         </div>
     </div>
-</section>
+</div>
 
 @endsection

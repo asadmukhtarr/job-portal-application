@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 4 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         :root {
             --main-color: #135E85;
@@ -110,6 +111,177 @@
         
         .btn-register:hover i {
             color: white;
+        }
+        
+        /* Dashboard Layout Styles */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 230px); /* Account for navbar and footer */
+        }
+        
+        /* Sidebar Styles (Not sticky) */
+        .dashboard-sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            position: relative; /* Not fixed */
+            height: auto;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 20px 15px;
+            border-bottom: 1px solid #e2e8f0;
+            background: var(--main-color-lightest);
+        }
+        
+        .sidebar-header h5 {
+            margin: 0;
+            color: var(--main-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-header h5 i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 15px 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            position: relative;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            background-color: var(--main-color-light);
+            color: var(--main-color);
+            border-left-color: var(--main-color);
+        }
+        
+        .sidebar-menu a.active {
+            background-color: var(--main-color-light);
+            color: var(--main-color);
+            border-left-color: var(--main-color);
+            font-weight: 600;
+        }
+        
+        .sidebar-menu i {
+            width: 25px;
+            font-size: 16px;
+            color: var(--main-color);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-menu span {
+            margin-left: 10px;
+        }
+        
+        /* Submenu styles */
+        .sidebar-submenu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background-color: var(--main-color-lightest);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .sidebar-submenu.show {
+            max-height: 200px;
+        }
+        
+        .sidebar-submenu a {
+            padding-left: 50px;
+            font-size: 14px;
+        }
+        
+        .has-submenu > a::after {
+            content: '\f107';
+            font-family: 'FontAwesome';
+            position: absolute;
+            right: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .has-submenu.active > a::after {
+            transform: rotate(180deg);
+        }
+        
+        /* Search box in sidebar */
+        .sidebar-search {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 8px 15px 8px 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--main-color);
+            box-shadow: 0 0 0 3px var(--main-color-light);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--main-color);
+        }
+        
+        /* Main content area */
+        .dashboard-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f8fafc;
+            overflow-y: auto;
+        }
+        
+        .dashboard-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-section h4 {
+            color: var(--main-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--main-color-light);
         }
         
         /* Contact Page Styles */
@@ -276,6 +448,7 @@
             background-color: var(--main-color) !important;
         }
         
+        /* Mobile responsiveness */
         @media (max-width: 991px) {
             .navbar-nav {
                 padding: 15px 0;
@@ -303,6 +476,21 @@
             
             .contact-hero {
                 padding: 60px 0 30px;
+            }
+            
+            /* Mobile sidebar */
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .dashboard-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .dashboard-content {
+                padding: 15px;
             }
         }
     </style>
@@ -336,7 +524,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('available-jobs') ? 'active' : '' }}" href="{{ route('jobs') }}">
+                        <a class="nav-link {{ request()->is('available-jobs') ? 'active' : '' }}" href="{{ route('client.jobs') }}">
                             <i class="fa fa-briefcase"></i>
                             Available Jobs
                         </a>
@@ -381,10 +569,17 @@
                                 </a>
 
                                 <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                                    <li><a class="dropdown-item" href="/">Dashboard</a></li>
-                                    <li><a class="dropdown-item" href="/">Settings</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('user.dashboard') }}">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('user.settings') }}">Settings</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="/">Logout</a></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                Logout
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </div>
                         @endif
@@ -393,9 +588,119 @@
             </div>
         </div>
     </nav>
+
+    <!-- Dashboard Layout (only for logged-in users) -->
+    <!-- Dashboard Layout (only for logged-in users) -->
+@if(Auth::check())
+    @php
+        // Check if current URL matches public paths
+        $currentPath = request()->path();
+        
+        // Public paths to exclude dashboard
+        // Use str_starts_with for routes with dynamic parameters
+        $isPublicPath = false;
+        
+        // Check for exact matches
+        $exactPaths = ['', 'about', 'contact', 'services', 'companies', 'available-jobs'];
+        
+        // Check for path starts with
+        $startsWithPaths = ['job/'];
+        
+        // Check exact paths
+        if (in_array($currentPath, $exactPaths) || in_array(ltrim($currentPath, '/'), $exactPaths)) {
+            $isPublicPath = true;
+        }
+        // Check if path starts with any of the patterns
+        else {
+            foreach ($startsWithPaths as $pattern) {
+                if (str_starts_with($currentPath, $pattern) || 
+                    str_starts_with(ltrim($currentPath, '/'), $pattern)) {
+                    $isPublicPath = true;
+                    break;
+                }
+            }
+        }
+    @endphp
     
+    @if(!$isPublicPath)
+        <div class="dashboard-container">
+            <!-- Sidebar -->
+            <div class="dashboard-sidebar">
+                <div class="sidebar-header">
+                    <h5><i class="fa fa-user-circle"></i> {{ Auth::user()->name }}</h5>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{{ route('user.dashboard') }}" class="{{ request()->is('user/dashboard') ? 'active' : '' }}">
+                            <i class="fa fa-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    
+                    <li class="has-submenu">
+                        <a href="#" id="jobsMenu">
+                            <i class="fa fa-briefcase"></i>
+                            <span>Your Jobs</span>
+                        </a>
+                        <ul class="sidebar-submenu" id="jobsSubmenu">
+                            <li>
+                                <a href="{{ route('jobs.create') }}" class="{{ request()->is('jobs/create') ? 'active' : '' }}">
+                                    <i class="fa fa-plus-circle"></i>
+                                    <span>Create New Job</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('jobs.index') }}" class="{{ request()->is('jobs') ? 'active' : '' }}">
+                                    <i class="fa fa-list"></i>
+                                    <span>All Jobs</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    <li>
+                        <a href="{{ route('user.yaj') }}" class="{{ request()->is('user/applied-jobs') ? 'active' : '' }}">
+                            <i class="fa fa-file-text"></i>
+                            <span>Your Applied Jobs</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{{ route('user.profile') }}" class="{{ request()->is('user/profile') ? 'active' : '' }}">
+                            <i class="fa fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="{{ route('user.settings') }}" class="{{ request()->is('user/settings') ? 'active' : '' }}">
+                            <i class="fa fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                      
+                    <li>
+                        <a href="{{ route('user.logout') }}">
+                          <i class="fa fa-sign-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="dashboard-content">
+                @yield('content')
+            </div>
+        </div>
+    @else
+        <!-- For logged in users on public routes, show regular content without sidebar -->
+        @yield('content')
+    @endif
+@else
     @yield('content')
-    
+@endif
     <!-- Footer -->
     <footer class="pt-5">
         <div class="container">
@@ -428,7 +733,7 @@
                     <ul class="list-unstyled footer-links">
                         <li class="mb-2"><a href="{{ route('welcome') }}">Home</a></li>
                         <li class="mb-2"><a href="{{ route('about') }}">About Us</a></li>
-                        <li class="mb-2"><a href="{{ route('jobs') }}">Available Jobs</a></li>
+                        <li class="mb-2"><a href="{{ route('client.jobs') }}">Available Jobs</a></li>
                         <li class="mb-2"><a href="{{ route('services') }}">Services</a></li>
                         <li class="mb-2"><a href="{{ route('contact') }}">Contact</a></li>
                     </ul>
@@ -484,5 +789,21 @@
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const jobsMenu = document.getElementById('jobsMenu');
+            const jobsSubmenu = document.getElementById('jobsSubmenu');
+            
+            // Toggle jobs submenu
+            if (jobsMenu && jobsSubmenu) {
+                jobsMenu.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.parentElement.classList.toggle('active');
+                    jobsSubmenu.classList.toggle('show');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

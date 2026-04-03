@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator | Asad Mukhtar</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .calculator {
+            background: #222;
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .calculator h2 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        #result {
+            width: 100%;
+            height: 60px;
+            font-size: 24px;
+            border: none;
+            outline: none;
+            text-align: right;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: #111;
+            color: #0f0;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            height: 55px;
+            font-size: 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .number {
+            background: #333;
+            color: #fff;
+        }
+
+        .operator {
+            background: #ff9500;
+            color: #fff;
+        }
+
+        .clear {
+            background: #ff3b30;
+            color: #fff;
+            grid-column: span 2;
+        }
+
+        .equal {
+            background: #34c759;
+            color: #fff;
+            grid-column: span 2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="calculator">
+        <h2>Calculator</h2>
+
+        <input type="text" id="result" readonly />
+
+        <div class="buttons">
+            <button class="number" onclick="calculate('7')">7</button>
+            <button class="number" onclick="calculate('8')">8</button>
+            <button class="number" onclick="calculate('9')">9</button>
+            <button class="operator" onclick="calculate('/')">÷</button>
+
+            <button class="number" onclick="calculate('4')">4</button>
+            <button class="number" onclick="calculate('5')">5</button>
+            <button class="number" onclick="calculate('6')">6</button>
+            <button class="operator" onclick="calculate('*')">×</button>
+
+            <button class="number" onclick="calculate('1')">1</button>
+            <button class="number" onclick="calculate('2')">2</button>
+            <button class="number" onclick="calculate('3')">3</button>
+            <button class="operator" onclick="calculate('-')">−</button>
+
+            <button class="number" onclick="calculate('0')">0</button>
+            <button class="number" onclick="calculate('.')">.</button>
+            <button class="operator" onclick="calculate('+')">+</button>
+            <button class="clear" onclick="calculate('c')">C</button>
+
+            <button class="equal" onclick="calculate('=')">=</button>
+        </div>
+    </div>
+
+    <script src="./js/index.js"></script>
+</body>
+
+</html>

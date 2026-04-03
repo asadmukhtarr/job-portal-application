@@ -45,4 +45,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // relationship of user with company ..
+    public function company(){
+        return $this->hasOne(company::class);
+    }
+    public function vacancy(){
+        return $this->hasMany(vacancy::class);
+    }
+    public function profile(){
+        return $this->hasOne(profile::class);
+    }
+    public function applicants(){
+        return $this->hasMany(applicant::class);
+    }
 }

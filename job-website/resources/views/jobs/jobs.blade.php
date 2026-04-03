@@ -390,7 +390,7 @@
         <div class="row align-items-center">
             <div class="col-lg-8">
                 <h1 class="display-5 fw-bold text-main mb-3">Find Your Dream Job</h1>
-                <p class="lead mb-4">Browse through <span class="text-main fw-bold">2,347+</span> verified job opportunities from top companies. Filter by location, salary, and job type to find your perfect match.</p>
+                <p class="lead mb-4">Browse through <span class="text-main fw-bold">{{ $vacancies->count() }}+</span> verified job opportunities from top companies. Filter by location, salary, and job type to find your perfect match.</p>
                 <div class="d-flex align-items-center">
                     <div class="me-4">
                         <i class="fa fa-briefcase fa-2x text-main"></i>
@@ -411,54 +411,6 @@
 <!-- Search Section -->
 <section class="py-5">
     <div class="container">
-        <div class="search-container">
-            <form action="/" method="GET">
-                <div class="row g-3">
-                    <div class="col-md-5">
-                        <div class="form-group">
-                            <label class="form-label">Job Title, Skills, or Company</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-main text-white">
-                                    <i class="fa fa-search"></i>
-                                </span>
-                                <input type="text" class="form-control" name="query" placeholder="Software Engineer, Marketing Manager, etc." value="{{ request('query') }}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Location</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-main text-white">
-                                    <i class="fa fa-map-marker"></i>
-                                </span>
-                                <input type="text" class="form-control" name="location" placeholder="City, State, or Remote" value="{{ request('location') }}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Job Type</label>
-                            <select class="form-select" name="job_type">
-                                <option value="">All Job Types</option>
-                                <option value="full-time" {{ request('job_type') == 'full-time' ? 'selected' : '' }}>Full Time</option>
-                                <option value="part-time" {{ request('job_type') == 'part-time' ? 'selected' : '' }}>Part Time</option>
-                                <option value="contract" {{ request('job_type') == 'contract' ? 'selected' : '' }}>Contract</option>
-                                <option value="remote" {{ request('job_type') == 'remote' ? 'selected' : '' }}>Remote</option>
-                                <option value="internship" {{ request('job_type') == 'internship' ? 'selected' : '' }}>Internship</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn btn-search">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
         <div class="row">
             <!-- Sidebar Filters -->
             <div class="col-lg-3">
@@ -554,7 +506,7 @@
                 </div>
                 
                 <div class="stats-card">
-                    <div class="stats-number">2,347</div>
+                    <div class="stats-number">{{ $vacancies->count() }}</div>
                     <div class="stats-label">Active Job Listings</div>
                     <div class="mt-3">
                         <small>Updated: Today, 10:30 AM</small>
@@ -579,7 +531,7 @@
             <!-- Job Listings -->
             <div class="col-lg-9">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="section-title mb-0">Available Jobs <small class="text-muted fs-6">(Showing 1-8 of 2,347)</small></h2>
+                    <h2 class="section-title mb-0">Available Jobs <small class="text-muted fs-6">(Showing {{ $vacancies->count() }} jobs)</small></h2>
                     <div class="d-flex align-items-center">
                         <span class="me-3">Sort by:</span>
                         <select class="form-select form-select-sm" style="width: auto;">
@@ -592,240 +544,204 @@
                 </div>
                 
                 <!-- Job Cards -->
-                <div class="job-card featured">
-                    <div class="d-flex">
-                        <div class="company-logo">
-                            <i class="fa fa-building fa-2x text-main"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h3 class="job-title">Senior Frontend Developer (React)</h3>
-                            <p class="company-name">TechVision Inc.</p>
-                            <div class="job-meta">
-                                <span class="job-meta-item">
-                                    <i class="fa fa-map-marker"></i>
-                                    Remote (Global)
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-money"></i>
-                                    $120,000 - $150,000
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-clock-o"></i>
-                                    Full Time
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-briefcase"></i>
-                                    5+ years experience
-                                </span>
+                @if($vacancies->count() > 0)
+                    @foreach($vacancies as $job)
+                    <div class="job-card @if($job->status == 2) featured @endif @if($job->vacancies <= 1) urgent @endif">
+                        <div class="d-flex">
+                            <div class="company-logo">
+                                <i class="fa fa-building fa-2x text-main"></i>
                             </div>
-                            <div class="job-skills">
-                                <span class="skill-tag">React</span>
-                                <span class="skill-tag">TypeScript</span>
-                                <span class="skill-tag">Redux</span>
-                                <span class="skill-tag">Next.js</span>
-                                <span class="skill-tag">GraphQL</span>
-                            </div>
-                            <div class="job-actions">
-                                <div>
-                                    <span class="job-type remote">Remote</span>
-                                    <span class="ms-2 text-muted">
-                                        <i class="fa fa-calendar me-1"></i>
-                                        Posted 2 days ago
+                            <div class="flex-grow-1">
+                                <h3 class="job-title">{{ $job->title ?? 'No Title' }}</h3>
+                                <p class="company-name">
+                                    @if($job->company)
+                                        {{ $job->company->name ?? 'Unknown Company' }}
+                                    @else
+                                        Unknown Company
+                                    @endif
+                                </p>
+                                <div class="job-meta">
+                                    <span class="job-meta-item">
+                                        <i class="fa fa-map-marker"></i>
+                                        {{ $job->location ?? 'Location not specified' }}
                                     </span>
+                                    @if($job->salary)
+                                    <span class="job-meta-item">
+                                        <i class="fa fa-money"></i>
+                                        {{ $job->salary }}
+                                    </span>
+                                    @endif
+                                    <span class="job-meta-item">
+                                        <i class="fa fa-clock-o"></i>
+                                        {{ $job->type ?? 'Full Time' }}
+                                    </span>
+                                    @if($job->experience)
+                                    <span class="job-meta-item">
+                                        <i class="fa fa-briefcase"></i>
+                                        {{ $job->experience }}
+                                    </span>
+                                    @endif
+                                    @if($job->vacancies)
+                                    <span class="job-meta-item">
+                                        <i class="fa fa-users"></i>
+                                        {{ $job->vacancies }} vacancies
+                                    </span>
+                                    @endif
                                 </div>
-                                <div>
-                                    <button class="btn btn-view me-2" data-bs-toggle="modal" data-bs-target="#jobDetailModal">
-                                        View Details
-                                    </button>
-                                    <button class="btn btn-apply">
-                                        <i class="fa fa-paper-plane me-2"></i>
-                                        Apply Now
-                                    </button>
+                                
+                                @if($job->skills)
+                                <div class="job-skills">
+                                    @php
+                                        $skills = explode(',', $job->skills);
+                                    @endphp
+                                    @foreach(array_slice($skills, 0, 5) as $skill)
+                                        <span class="skill-tag">{{ trim($skill) }}</span>
+                                    @endforeach
+                                    @if(count($skills) > 5)
+                                        <span class="skill-tag">+{{ count($skills) - 5 }} more</span>
+                                    @endif
+                                </div>
+                                @endif
+                                
+                                <div class="job-actions">
+                                    <div>
+                                        @php
+                                            $typeClass = 'job-type';
+                                            if(str_contains(strtolower($job->type ?? ''), 'remote')) {
+                                                $typeClass .= ' remote';
+                                            } elseif(str_contains(strtolower($job->type ?? ''), 'part')) {
+                                                $typeClass .= ' part-time';
+                                            } elseif(str_contains(strtolower($job->type ?? ''), 'contract')) {
+                                                $typeClass .= ' contract';
+                                            }
+                                        @endphp
+                                        <span class="{{ $typeClass }}">{{ $job->type ?? 'Full Time' }}</span>
+                                        @if($job->created_at)
+                                        <span class="ms-2 text-muted">
+                                            <i class="fa fa-calendar me-1"></i>
+                                            Posted {{ $job->created_at->diffForHumans() }}
+                                        </span>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <a href="{{ route('show.jobz',$job->id) }}">
+                                        <button class="btn btn-apply">
+                                            <i class="fa fa-paper-plane me-2"></i>
+                                            Apply Now
+                                        </button>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="job-card">
-                    <div class="d-flex">
-                        <div class="company-logo">
-                            <i class="fa fa-apple fa-2x text-main"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h3 class="job-title">Marketing Manager</h3>
-                            <p class="company-name">GlobalTech Solutions</p>
-                            <div class="job-meta">
-                                <span class="job-meta-item">
-                                    <i class="fa fa-map-marker"></i>
-                                    New York, NY
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-money"></i>
-                                    $90,000 - $120,000
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-clock-o"></i>
-                                    Full Time
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-briefcase"></i>
-                                    3+ years experience
-                                </span>
-                            </div>
-                            <div class="job-skills">
-                                <span class="skill-tag">Digital Marketing</span>
-                                <span class="skill-tag">SEO</span>
-                                <span class="skill-tag">Social Media</span>
-                                <span class="skill-tag">Content Strategy</span>
-                            </div>
-                            <div class="job-actions">
-                                <div>
-                                    <span class="job-type">Full Time</span>
-                                    <span class="ms-2 text-muted">
-                                        <i class="fa fa-calendar me-1"></i>
-                                        Posted 1 week ago
-                                    </span>
+
+                    <!-- Job Detail Modal for each job -->
+                    <div class="modal fade job-detail-modal" id="jobDetailModal{{ $job->id }}" tabindex="-1" aria-labelledby="jobDetailModalLabel{{ $job->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="jobDetailModalLabel{{ $job->id }}">{{ $job->title ?? 'Job Details' }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div>
-                                    <button class="btn btn-view me-2">View Details</button>
-                                    <button class="btn btn-apply">
-                                        <i class="fa fa-paper-plane me-2"></i>
-                                        Apply Now
-                                    </button>
+                                <div class="modal-body">
+                                    <div class="row mb-4">
+                                        <div class="col-md-8">
+                                            <h6 class="text-main">
+                                                @if($job->company)
+                                                    {{ $job->company->name ?? 'Unknown Company' }}
+                                                @else
+                                                    Unknown Company
+                                                @endif
+                                            </h6>
+                                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                                <span class="badge bg-main">{{ $job->type ?? 'Full Time' }}</span>
+                                                <span class="badge bg-success">{{ $job->location ?? 'Location not specified' }}</span>
+                                                @if($job->salary)
+                                                <span class="badge bg-warning">{{ $job->salary }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <button class="btn btn-apply">
+                                                <i class="fa fa-paper-plane me-2"></i>
+                                                Apply Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($job->description)
+                                    <h6 class="text-main">Job Description</h6>
+                                    <p>{{ $job->description }}</p>
+                                    @endif
+                                    
+                                    @if($job->requirements)
+                                    <h6 class="text-main mt-4">Requirements</h6>
+                                    <p>{{ $job->requirements }}</p>
+                                    @endif
+                                    
+                                    @if($job->skills)
+                                    <h6 class="text-main mt-4">Required Skills</h6>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        @php
+                                            $skills = explode(',', $job->skills);
+                                        @endphp
+                                        @foreach($skills as $skill)
+                                            <span class="skill-tag">{{ trim($skill) }}</span>
+                                        @endforeach
+                                    </div>
+                                    @endif
+                                    
+                                    @if($job->experience)
+                                    <h6 class="text-main mt-4">Experience</h6>
+                                    <p>{{ $job->experience }}</p>
+                                    @endif
+                                    
+                                    @if($job->vacancies)
+                                    <div class="alert alert-info mt-4">
+                                        <i class="fa fa-users me-2"></i>
+                                        <strong>{{ $job->vacancies }} position(s) available</strong>
+                                    </div>
+                                    @endif
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="job-card urgent">
-                    <div class="d-flex">
-                        <div class="company-logo">
-                            <i class="fa fa-amazon fa-2x text-main"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h3 class="job-title">Data Scientist</h3>
-                            <p class="company-name">DataInsight Corp</p>
-                            <div class="job-meta">
-                                <span class="job-meta-item">
-                                    <i class="fa fa-map-marker"></i>
-                                    San Francisco, CA
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-money"></i>
-                                    $140,000 - $180,000
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-clock-o"></i>
-                                    Full Time
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-briefcase"></i>
-                                    4+ years experience
-                                </span>
-                            </div>
-                            <div class="job-skills">
-                                <span class="skill-tag">Python</span>
-                                <span class="skill-tag">Machine Learning</span>
-                                <span class="skill-tag">SQL</span>
-                                <span class="skill-tag">TensorFlow</span>
-                                <span class="skill-tag">AWS</span>
-                            </div>
-                            <div class="job-actions">
-                                <div>
-                                    <span class="job-type">Full Time</span>
-                                    <span class="ms-2 text-muted">
-                                        <i class="fa fa-calendar me-1"></i>
-                                        Posted 1 day ago
-                                    </span>
-                                </div>
-                                <div>
-                                    <button class="btn btn-view me-2">View Details</button>
-                                    <button class="btn btn-apply">
-                                        <i class="fa fa-paper-plane me-2"></i>
-                                        Apply Now
-                                    </button>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-apply">Apply for this Job</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="job-card">
-                    <div class="d-flex">
-                        <div class="company-logo">
-                            <i class="fa fa-google fa-2x text-main"></i>
+                    @endforeach
+                    
+                    <!-- Pagination -->
+                    <nav aria-label="Job pagination" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">
+                                    <i class="fa fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">4</a></li>
+                            <li class="page-item"><a class="page-link" href="#">5</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">
+                                    <i class="fa fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                @else
+                    <div class="no-jobs">
+                        <div class="no-jobs-icon">
+                            <i class="fa fa-briefcase"></i>
                         </div>
-                        <div class="flex-grow-1">
-                            <h3 class="job-title">UX/UI Designer</h3>
-                            <p class="company-name">Creative Minds Agency</p>
-                            <div class="job-meta">
-                                <span class="job-meta-item">
-                                    <i class="fa fa-map-marker"></i>
-                                    Chicago, IL
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-money"></i>
-                                    $75,000 - $95,000
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-clock-o"></i>
-                                    Contract
-                                </span>
-                                <span class="job-meta-item">
-                                    <i class="fa fa-briefcase"></i>
-                                    2+ years experience
-                                </span>
-                            </div>
-                            <div class="job-skills">
-                                <span class="skill-tag">Figma</span>
-                                <span class="skill-tag">Adobe XD</span>
-                                <span class="skill-tag">UI/UX</span>
-                                <span class="skill-tag">Prototyping</span>
-                            </div>
-                            <div class="job-actions">
-                                <div>
-                                    <span class="job-type contract">Contract</span>
-                                    <span class="ms-2 text-muted">
-                                        <i class="fa fa-calendar me-1"></i>
-                                        Posted 3 days ago
-                                    </span>
-                                </div>
-                                <div>
-                                    <button class="btn btn-view me-2">View Details</button>
-                                    <button class="btn btn-apply">
-                                        <i class="fa fa-paper-plane me-2"></i>
-                                        Apply Now
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <h3 class="text-main">No Jobs Available</h3>
+                        <p class="text-muted">There are currently no job vacancies available. Please check back later.</p>
                     </div>
-                </div>
-                
-                <!-- More job cards... -->
-                
-                <!-- Pagination -->
-                <nav aria-label="Job pagination" class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">
-                                <i class="fa fa-chevron-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">
-                                <i class="fa fa-chevron-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+                @endif
             </div>
         </div>
     </div>
@@ -848,60 +764,5 @@
         </div>
     </div>
 </section>
-
-<!-- Job Detail Modal -->
-<div class="modal fade job-detail-modal" id="jobDetailModal" tabindex="-1" aria-labelledby="jobDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="jobDetailModalLabel">Senior Frontend Developer (React)</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-4">
-                    <div class="col-md-8">
-                        <h6 class="text-main">TechVision Inc.</h6>
-                        <div class="d-flex flex-wrap gap-2 mt-2">
-                            <span class="badge bg-main">Remote</span>
-                            <span class="badge bg-success">Full Time</span>
-                            <span class="badge bg-warning">$120k - $150k</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <button class="btn btn-apply">
-                            <i class="fa fa-paper-plane me-2"></i>
-                            Apply Now
-                        </button>
-                    </div>
-                </div>
-                
-                <h6 class="text-main">Job Description</h6>
-                <p>We are looking for a skilled Senior Frontend Developer to join our growing team. You will be responsible for building responsive web applications using React and modern frontend technologies.</p>
-                
-                <h6 class="text-main mt-4">Requirements</h6>
-                <ul>
-                    <li>5+ years of experience with React and TypeScript</li>
-                    <li>Strong understanding of Redux state management</li>
-                    <li>Experience with Next.js and SSR</li>
-                    <li>Knowledge of GraphQL and REST APIs</li>
-                    <li>Familiarity with testing frameworks (Jest, React Testing Library)</li>
-                </ul>
-                
-                <h6 class="text-main mt-4">Benefits</h6>
-                <ul>
-                    <li>Fully remote work</li>
-                    <li>Competitive salary and equity</li>
-                    <li>Health, dental, and vision insurance</li>
-                    <li>Unlimited PTO</li>
-                    <li>Professional development budget</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-apply">Apply for this Job</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 @endsection

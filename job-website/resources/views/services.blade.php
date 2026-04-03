@@ -399,7 +399,7 @@
                     </ul>
                     
                     <div class="service-cta">
-                        <a href="{{ route('jobs') }}" class="btn btn-service">
+                        <a href="{{ route('client.jobs') }}" class="btn btn-service">
                             Browse Jobs
                             <i class="fa fa-briefcase"></i>
                         </a>

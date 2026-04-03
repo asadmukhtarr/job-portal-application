@@ -15,6 +15,13 @@
 		- Your Jobs ( Create Comapny / Post Job )
 		- Settings
 		- Profile
+# Required Database Table
+    - Users 
+    - profile
+    - Jobs
+    - company 
+    - applications
+    - Loginhistory 
 # Project Description 
     - First Practice: Core PHP + Bootstrap ( Login System ) + Mysql
     - Second Practice : Laravel + Bootstrap/Tailwind + Mysql
@@ -47,6 +54,7 @@
     - What is blade file in laravel? Views files are called blade file in laravel..
     - What is purpose of view() function in laravel? This function take my application proccess to view folder ..
     - What is command for get all route list: php artisan route:list
+    - Can we create form within form? No ..
 # Github Guidlines 
     - For Load Data : git add .
     - For Commit Data : git commit -m "Message"
@@ -70,3 +78,18 @@
 # Project Development Proccess ..
     - Step # 1 : Project Planning 
     - Step # 2 : Create All Required Pages (Blade Files ) + Routes ..
+# Javascript Code Interview Style ...
+    - We can write JS in extension file ...
+    - There are two types of Js syntax : Internal JS , External JS
+    - Most Important Topic in JS is Events .. ( Events hum actions ko kehty hein jaisy click krna , mouse over ,    double click , mouseout , mouseIn , callBack , Right click , hoverOver)
+# Javascript Guidlines ...
+    - Syntax of JS
+    - React Installation steps : 
+        - Step # 1: Download NodeJS
+        - Step # 2: npx create-react-app my-app
+        - Step # 3: cd my-app
+        - Step # 4: npm start
+    - Routing In React :
+        -Step # 1: npm install react-route-dom 
+        -Step # 2: App.jsx routes ..
+        -Step # 3: Call Browser Routes In Index.js

@@ -692,7 +692,7 @@
                             
                             <div class="tab-content" id="searchTabContent">
                                 <div class="tab-pane fade show active" id="jobs-tab-pane" role="tabpanel">
-                                    <form action="{{ route('jobs') }}" method="GET" class="mt-3">
+                                    <form action="{{ route('client.jobs') }}" method="GET" class="mt-3">
                                         <div class="row g-3">
                                             <div class="col-md-8">
                                                 <div class="search-input-group">
@@ -889,7 +889,7 @@
         </div>
         
         <div class="text-center mt-4">
-            <a href="{{ route('jobs') }}" class="btn btn-view-all">
+            <a href="{{ route('client.jobs') }}" class="btn btn-view-all">
                 <i class="fa fa-th-large me-2"></i>
                 View All Categories
             </a>
@@ -1034,7 +1034,7 @@
         </div>
         
         <div class="view-all-jobs">
-            <a href="{{ route('jobs') }}" class="btn btn-view-all">
+            <a href="{{ route('client.jobs') }}" class="btn btn-view-all">
                 <i class="fa fa-briefcase me-2"></i>
                 View All Jobs
             </a>
@@ -1272,7 +1272,7 @@
                         <i class="fa fa-user-plus me-2"></i>
                         Sign Up Free
                     </a>
-                    <a href="{{ route('jobs') }}" class="btn btn-cta-secondary">
+                    <a href="{{ route('client.jobs') }}" class="btn btn-cta-secondary">
                         <i class="fa fa-briefcase me-2"></i>
                         Browse Jobs
                     </a>

@@ -576,7 +576,7 @@
                     <h1 class="hero-title">Connecting Talent with Opportunity</h1>
                     <p class="hero-subtitle">At Web Career, we're revolutionizing the job search experience by creating meaningful connections between exceptional talent and forward-thinking companies. Our mission is to empower careers and transform hiring processes.</p>
                     <div class="cta-buttons">
-                        <a href="{{ route('jobs') }}" class="btn btn-cta-primary">
+                        <a href="{{ route('client.jobs') }}" class="btn btn-cta-primary">
                             <i class="fa fa-briefcase me-2"></i>
                             Browse Jobs
                         </a>
