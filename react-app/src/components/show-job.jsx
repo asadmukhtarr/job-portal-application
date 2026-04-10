@@ -1,29 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 export default function ShowJob() {
+    const { id } = useParams();
     // Static job data - this would come from API/route params in real implementation
-    const [job] = useState({
-        id: 1,
-        company_id: 101,
-        user_id: 201,
-        title: "Senior Frontend Developer",
-        type: "Full-time",
-        location: "Remote (Worldwide)",
-        salary: "$85,000 - $110,000",
-        skills: "React, TypeScript, Tailwind, Redux, Jest, Git",
-        description: "We are looking for an experienced Frontend Developer to join our growing team. You will be responsible for building responsive and high-performance user interfaces for our job platform. You'll collaborate closely with designers, backend engineers, and product managers to create exceptional user experiences that help millions of people find their dream jobs.",
-        requirements: "5+ years of frontend development experience. Strong proficiency in React.js and modern JavaScript (ES6+). Experience with state management libraries like Redux or Context API. Understanding of responsive design principles and CSS frameworks. Familiarity with RESTful APIs and asynchronous programming. Excellent problem-solving skills and attention to detail. Bachelor's degree in Computer Science or equivalent experience.",
-        vacancies: 3,
-        experience: "5+ Years",
-        status: 1,
-        views: 2847,
-        company: "TechNova Solutions",
-        companyLogo: "🏢",
-        companySize: "100-500 employees",
-        industry: "Technology / Software",
-        founded: "2018",
-        benefits: "Health Insurance, 401(k), Remote Work, Flexible Hours, Professional Development"
-    });
+    const [job, setJob] = useState({});
+    const fetchJob = async () => {
+        const response = await fetch(`http://localhost:8001/api/vacancy/${id}`)
+        const data = await response.json();
+        setJob(data.vacancy);
+        // console.log(data.vacancy);
+    }
 
     const [showApplyForm, setShowApplyForm] = useState(false);
     const [applicationSubmitted, setApplicationSubmitted] = useState(false);
@@ -51,7 +38,9 @@ export default function ShowJob() {
         setShowApplyForm(false);
         setApplicationData({ fullName: '', email: '', phone: '', coverLetter: '', resume: '' });
     };
-
+    useEffect(function () {
+        fetchJob();
+    });
     return (
         <div className="bg-light">
             {/* Job Header */}
@@ -120,8 +109,8 @@ export default function ShowJob() {
                             <div className="card-body p-4">
                                 <h3 className="fw-bold mb-3">Required Skills</h3>
                                 <div className="d-flex flex-wrap gap-2">
-                                    {job.skills.split(', ').map((skill, idx) => (
-                                        <span key={idx} className="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
+                                    {job.skills?.split(', ').map((skill, idx) => (
+                                        <span key={idx} className="badge bg-light text-dark border rounded-pill px-2 py-1">
                                             {skill}
                                         </span>
                                     ))}
@@ -129,22 +118,6 @@ export default function ShowJob() {
                             </div>
                         </div>
 
-                        {/* Benefits */}
-                        <div className="card border-0 shadow-sm rounded-4">
-                            <div className="card-body p-4">
-                                <h3 className="fw-bold mb-3">Benefits</h3>
-                                <div className="row g-3">
-                                    {job.benefits.split(', ').map((benefit, idx) => (
-                                        <div key={idx} className="col-md-6">
-                                            <div className="d-flex align-items-center">
-                                                <i className="bi bi-check-circle-fill text-success me-2"></i>
-                                                <span className="text-muted">{benefit}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Sidebar */}
@@ -289,18 +262,7 @@ export default function ShowJob() {
                                                 required
                                             />
                                         </div>
-                                        <div className="col-md-6">
-                                            <label className="form-label fw-semibold">Phone Number *</label>
-                                            <input
-                                                type="tel"
-                                                className="form-control"
-                                                name="phone"
-                                                value={applicationData.phone}
-                                                onChange={handleApplyChange}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="col-md-6">
+                                        <div className="col-md-12">
                                             <label className="form-label fw-semibold">Resume/CV *</label>
                                             <input
                                                 type="file"
@@ -309,17 +271,6 @@ export default function ShowJob() {
                                                 onChange={(e) => setApplicationData({ ...applicationData, resume: e.target.files[0]?.name })}
                                                 required
                                             />
-                                        </div>
-                                        <div className="col-12">
-                                            <label className="form-label fw-semibold">Cover Letter</label>
-                                            <textarea
-                                                className="form-control"
-                                                rows="5"
-                                                name="coverLetter"
-                                                placeholder="Tell us why you're a great fit for this position..."
-                                                value={applicationData.coverLetter}
-                                                onChange={handleApplyChange}
-                                            ></textarea>
                                         </div>
                                     </div>
                                     <div className="modal-footer border-0 px-0 mt-4">

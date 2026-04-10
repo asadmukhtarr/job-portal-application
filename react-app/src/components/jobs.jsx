@@ -1,130 +1,14 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 export default function Jobs() {
     // Static job data
-    const [jobs] = useState([
-        {
-            id: 1,
-            title: "Senior Frontend Developer",
-            type: "Full-time",
-            location: "Remote (Worldwide)",
-            salary: "$85,000 - $110,000",
-            skills: "React, TypeScript, Tailwind, Redux",
-            description: "Build responsive and high-performance user interfaces for our job platform. Collaborate with designers and backend engineers to create exceptional user experiences.",
-            requirements: "5+ years of frontend experience, strong React skills, understanding of modern JavaScript and state management.",
-            vacancies: 3,
-            experience: "5+ Years",
-            views: 2847,
-            company: "TechNova Solutions",
-            postedDate: "2024-01-15"
-        },
-        {
-            id: 2,
-            title: "Backend Engineer",
-            type: "Full-time",
-            location: "New York, NY",
-            salary: "$100,000 - $135,000",
-            skills: "Node.js, Python, PostgreSQL, AWS",
-            description: "Design and maintain scalable backend services and RESTful APIs. Optimize database performance and ensure system reliability.",
-            requirements: "Strong experience with Node.js or Python, knowledge of cloud infrastructure and microservices architecture.",
-            vacancies: 2,
-            experience: "4+ Years",
-            views: 1923,
-            company: "StackScale Inc.",
-            postedDate: "2024-01-10"
-        },
-        {
-            id: 3,
-            title: "UI/UX Designer",
-            type: "Contract",
-            location: "San Francisco, CA",
-            salary: "$70 - $90 / hour",
-            skills: "Figma, Adobe XD, User Research, Prototyping",
-            description: "Create beautiful and intuitive designs for web and mobile applications. Conduct user research and usability testing.",
-            requirements: "Portfolio showcasing user-centered design, experience with design systems and collaboration tools.",
-            vacancies: 1,
-            experience: "3+ Years",
-            views: 1567,
-            company: "CreativeMinds Studio",
-            postedDate: "2024-01-12"
-        },
-        {
-            id: 4,
-            title: "DevOps Engineer",
-            type: "Full-time",
-            location: "Austin, TX",
-            salary: "$110,000 - $145,000",
-            skills: "Kubernetes, Docker, CI/CD, Terraform, AWS",
-            description: "Manage cloud infrastructure and deployment pipelines. Ensure high availability, security, and monitoring.",
-            requirements: "Experience with container orchestration, infrastructure as code, and CI/CD tools.",
-            vacancies: 2,
-            experience: "5+ Years",
-            views: 2145,
-            company: "CloudNative Solutions",
-            postedDate: "2024-01-08"
-        },
-        {
-            id: 5,
-            title: "Mobile Developer (iOS)",
-            type: "Full-time",
-            location: "Remote (US only)",
-            salary: "$95,000 - $125,000",
-            skills: "Swift, UIKit, SwiftUI, Core Data",
-            description: "Develop and maintain iOS applications with excellent user experience and performance.",
-            requirements: "Published apps in App Store, strong Swift knowledge, experience with MVVM architecture.",
-            vacancies: 2,
-            experience: "3+ Years",
-            views: 876,
-            company: "AppCraft Labs",
-            postedDate: "2024-01-14"
-        },
-        {
-            id: 6,
-            title: "Data Scientist",
-            type: "Part-time",
-            location: "Boston, MA",
-            salary: "$60 - $80 / hour",
-            skills: "Python, SQL, Machine Learning, Pandas, TensorFlow",
-            description: "Analyze large datasets and build predictive models to drive business decisions.",
-            requirements: "Strong statistical background, experience with ML frameworks, data visualization skills.",
-            vacancies: 1,
-            experience: "3+ Years",
-            views: 1102,
-            company: "DataInsights Corp",
-            postedDate: "2024-01-09"
-        },
-        {
-            id: 7,
-            title: "Product Manager",
-            type: "Full-time",
-            location: "Seattle, WA",
-            salary: "$120,000 - $160,000",
-            skills: "Agile, Scrum, Product Strategy, User Stories, Analytics",
-            description: "Lead product development from concept to launch. Work with cross-functional teams to deliver exceptional products.",
-            requirements: "5+ years of product management experience, strong analytical skills, excellent communication.",
-            vacancies: 1,
-            experience: "5+ Years",
-            views: 2341,
-            company: "InnovateTech",
-            postedDate: "2024-01-07"
-        },
-        {
-            id: 8,
-            title: "QA Automation Engineer",
-            type: "Full-time",
-            location: "Chicago, IL",
-            salary: "$75,000 - $95,000",
-            skills: "Selenium, Java, Jenkins, TestNG, JIRA",
-            description: "Design and implement automated test frameworks. Ensure software quality through comprehensive testing strategies.",
-            requirements: "Experience with automation tools, strong programming skills, attention to detail.",
-            vacancies: 2,
-            experience: "3+ Years",
-            views: 654,
-            company: "QualityFirst Inc.",
-            postedDate: "2024-01-11"
-        }
-    ]);
-
+    const [jobs, setJobs] = useState([]);
+    const fetchJobs = async () => {
+        const response = await fetch("http://localhost:8001/api/vacancies");
+        const data = await response.json();
+        setJobs(data.vacancies.reverse());
+        // console.log("data is here", data.vacancies);
+    }
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedType, setSelectedType] = useState('All');
     const [selectedLocation, setSelectedLocation] = useState('All');
@@ -152,7 +36,9 @@ export default function Jobs() {
     const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+    useEffect(function () {
+        fetchJobs();
+    });
     return (
         <div>
             {/* Hero Section */}
@@ -300,11 +186,11 @@ export default function Jobs() {
 
                                         <div className="d-flex gap-2">
                                             <button className="btn btn-primary rounded-pill px-4 flex-grow-1">
-                                                Apply Now <i className="bi bi-arrow-right ms-2"></i>
+                                                Apply Now <i className="fa fa-arrow-right ms-2"></i>
                                             </button>
-                                            <button className="btn btn-outline-secondary rounded-pill px-3">
-                                                <i className="bi bi-bookmark"></i>
-                                            </button>
+                                            <Link to={`/show-jobs/${job.id}`} className="btn btn-outline-secondary rounded-pill px-3">
+                                                <i className="fa fa-eye"></i>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
@@ -381,6 +267,6 @@ export default function Jobs() {
           box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
         }
       `}</style>
-        </div>
+        </div >
     );
 }

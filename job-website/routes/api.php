@@ -22,4 +22,22 @@ Route::get('/vacancies', function () {
         ], 500);
     }
 });
+Route::get('/vacancy/{id}',function($id){
+    try {
+         $vacancy = vacancy::find($id);
+        return response()->json([
+            'message' => 'Single Job Fetched Succesfully',
+            'status'  => 'success',
+            'code'    => 200,
+            'vacancy' => $vacancy
+        ]);
+    } catch(Exception $e) {
+         return response()->json([
+            'message' => 'Failed to fetch vacancy',
+            'status' => 'error',
+            'code' => 500,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
 
