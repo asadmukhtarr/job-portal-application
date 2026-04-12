@@ -9,6 +9,8 @@ import Jobs from "./components/jobs";
 import ShowJob from "./components/show-job";
 import Test from "./components/Test";
 import Login from "./components/login";
+import Register from "./components/Register";
+
 const App = () => {
     const home = "I am testing his for learn props in test component (Its use for pass data from one component to another one).";
     return (
@@ -24,6 +26,7 @@ const App = () => {
                     <Route path="/jobs" element={<Jobs />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/test" element={<Test home={home} />} />
                 </Routes>
             </div>
