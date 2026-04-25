@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\vacancy;
-
+use App\Http\Controllers\API\AuthController;
+Route::post("/register",[AuthController::class,'register']);
+Route::post("/login",[AuthController::class,'login']);
 Route::get('/vacancies', function () {
     try {
         $data = [

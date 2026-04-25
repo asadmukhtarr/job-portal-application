@@ -69,10 +69,26 @@ export default function Register() {
         }
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         if (validateForm()) {
             console.log('Registration submitted:', { ...formData, rememberMe })
+            const data = await fetch("http://localhost:8000/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    rememberMe
+                })
+            });
+            const response = await data.json();
+            if (response.code == 201) {
+                window.location.href = "/login";
+            }
+            // console.log(response.code);
             // Add your registration logic here
             // Example: await registerAPI({ name, email, password, rememberMe })
         }
