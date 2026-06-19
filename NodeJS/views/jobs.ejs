@@ -1,0 +1,607 @@
+<%- include('includes/header', { title: 'JobHub - Browse Jobs' , currentPage: 'jobs' }) %>
+
+    <style>
+        /* Jobs Page Specific Styles */
+        .jobs-hero {
+            background: linear-gradient(135deg, #0b3d3f 0%, #1a5f5c 25%, #1e88a0 50%, #2c9ba8 75%, #3aa8c5 100%);
+            padding: 60px 0;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jobs-hero::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(-20px, -20px);
+            }
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 50px;
+            padding: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #1e88a0, #2c9ba8);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, #2c9ba8, #3aa8c5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 160, 0.4);
+        }
+
+        .filter-card {
+            background: white;
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 20px;
+        }
+
+        .filter-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0b3d3f;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #1e88a0;
+            display: inline-block;
+        }
+
+        .filter-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .filter-select,
+        .filter-input {
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            padding: 8px 12px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            border-color: #1e88a0;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30, 136, 160, 0.1);
+        }
+
+        .job-card {
+            border: none;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1e88a0, #3aa8c5, #ffd700);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #1e88a0;
+        }
+
+        .job-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0b3d3f;
+            margin-bottom: 0.3rem;
+        }
+
+        .company-name {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-tag {
+            background: #e8f5e9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            color: #1e88a0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-remote {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-hybrid {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-onsite {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .salary-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e88a0;
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, #1e88a0, #2c9ba8);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 8px 20px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-apply:hover {
+            background: linear-gradient(135deg, #2c9ba8, #3aa8c5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 160, 0.3);
+        }
+
+        .pagination .page-link {
+            color: #1e88a0;
+            border-radius: 0.5rem;
+            margin: 0 3px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #1e88a0, #2c9ba8);
+            border-color: #1e88a0;
+        }
+
+        .pagination .page-link:hover {
+            color: #0b3d3f;
+            background: #e0f2f1;
+        }
+
+        @media (max-width: 768px) {
+            .filter-card {
+                position: relative;
+                top: 0;
+                margin-bottom: 1.5rem;
+            }
+
+            .search-box {
+                border-radius: 1rem;
+            }
+        }
+    </style>
+
+    <!-- Jobs Hero Section -->
+    <section class="jobs-hero">
+        <div class="container text-center position-relative" style="z-index: 1;">
+            <i class="fa fa-search fa-3x mb-3"></i>
+            <h1 class="display-4 fw-bold">Browse Jobs</h1>
+            <p class="lead">Find your next career opportunity from thousands of listings</p>
+        </div>
+    </section>
+
+    <div class="container mb-5">
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mx-auto">
+                <div class="search-box">
+                    <div class="row g-0">
+                        <div class="col-md-5">
+                            <input type="text" class="form-control search-input"
+                                placeholder="Job title, keywords, or company">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control search-input" placeholder="Location">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn search-btn w-100"><i class="fa fa-search"></i> Search Jobs</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card filter-card">
+                    <div class="card-body p-4">
+                        <h5 class="filter-title"><i class="fa fa-filter"></i> Filters</h5>
+
+                        <div class="filter-section">
+                            <label class="filter-label"><i class="fa fa-briefcase"></i> Job Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="fulltime">
+                                <label class="form-check-label" for="fulltime">Full-time</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="parttime">
+                                <label class="form-check-label" for="parttime">Part-time</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="contract">
+                                <label class="form-check-label" for="contract">Contract</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="internship">
+                                <label class="form-check-label" for="internship">Internship</label>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label"><i class="fa fa-map-marker"></i> Work Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remote">
+                                <label class="form-check-label" for="remote">Remote</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="hybrid">
+                                <label class="form-check-label" for="hybrid">Hybrid</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="onsite">
+                                <label class="form-check-label" for="onsite">On-site</label>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label"><i class="fa fa-usd"></i> Salary Range</label>
+                            <select class="filter-select">
+                                <option>Any</option>
+                                <option>$30k - $50k</option>
+                                <option>$50k - $80k</option>
+                                <option>$80k - $120k</option>
+                                <option>$120k+</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="filter-label"><i class="fa fa-calendar"></i> Experience Level</label>
+                            <select class="filter-select">
+                                <option>Any Level</option>
+                                <option>Entry Level</option>
+                                <option>Mid Level</option>
+                                <option>Senior Level</option>
+                                <option>Lead/Manager</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-outline-gradient w-100 mt-3"
+                            style="border-color: #1e88a0; color: #1e88a0;">
+                            <i class="fa fa-refresh"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Listings -->
+            <div class="col-lg-9">
+                <!-- Results Count -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted mb-0"><i class="fa fa-file-text-o"></i> Showing <strong>24</strong> jobs</p>
+                    <select class="filter-select" style="width: auto;">
+                        <option>Most Recent</option>
+                        <option>Highest Salary</option>
+                        <option>Most Relevant</option>
+                    </select>
+                </div>
+
+                <!-- Job Card 1 -->
+                <div class="card job-card">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="company-logo">
+                                    <i class="fa fa-google"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                    <div>
+                                        <h3 class="job-title">Senior Full Stack Developer</h3>
+                                        <p class="company-name"><i class="fa fa-building"></i> Google <span
+                                                class="text-muted mx-2">•</span> <i class="fa fa-map-marker"></i>
+                                            Mountain View, CA</p>
+                                    </div>
+                                    <span class="job-badge badge-remote"><i class="fa fa-wifi"></i> Remote</span>
+                                </div>
+                                <p class="mt-2">We're looking for an experienced Full Stack Developer to join our team.
+                                    You'll work on cutting-edge projects using React, Node.js, and cloud technologies.
+                                </p>
+                                <div class="mb-2">
+                                    <span class="job-tag"><i class="fa fa-code"></i> React</span>
+                                    <span class="job-tag"><i class="fa fa-node"></i> Node.js</span>
+                                    <span class="job-tag"><i class="fa fa-database"></i> MongoDB</span>
+                                    <span class="job-tag"><i class="fa fa-cloud"></i> AWS</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                    <div>
+                                        <span class="salary-text"><i class="fa fa-usd"></i> $120k - $160k</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-briefcase"></i> Full-time</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-calendar"></i> Posted 2 days ago</span>
+                                    </div>
+                                    <a href="/apply?job=senior-fullstack" class="btn btn-apply"><i
+                                            class="fa fa-send"></i> Apply Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Card 2 -->
+                <div class="card job-card">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="company-logo">
+                                    <i class="fa fa-microsoft"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                    <div>
+                                        <h3 class="job-title">UI/UX Designer</h3>
+                                        <p class="company-name"><i class="fa fa-building"></i> Microsoft <span
+                                                class="text-muted mx-2">•</span> <i class="fa fa-map-marker"></i>
+                                            Redmond, WA</p>
+                                    </div>
+                                    <span class="job-badge badge-hybrid"><i class="fa fa-exchange"></i> Hybrid</span>
+                                </div>
+                                <p class="mt-2">Join our design team to create beautiful and intuitive user experiences
+                                    for millions of users worldwide.</p>
+                                <div class="mb-2">
+                                    <span class="job-tag"><i class="fa fa-figma"></i> Figma</span>
+                                    <span class="job-tag"><i class="fa fa-adobe"></i> Adobe XD</span>
+                                    <span class="job-tag"><i class="fa fa-paint-brush"></i> Sketch</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                    <div>
+                                        <span class="salary-text"><i class="fa fa-usd"></i> $90k - $130k</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-briefcase"></i> Full-time</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-calendar"></i> Posted 3 days ago</span>
+                                    </div>
+                                    <a href="/apply?job=ui-ux-designer" class="btn btn-apply"><i class="fa fa-send"></i>
+                                        Apply Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Card 3 -->
+                <div class="card job-card">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="company-logo">
+                                    <i class="fa fa-amazon"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                    <div>
+                                        <h3 class="job-title">DevOps Engineer</h3>
+                                        <p class="company-name"><i class="fa fa-building"></i> Amazon Web Services <span
+                                                class="text-muted mx-2">•</span> <i class="fa fa-map-marker"></i>
+                                            Seattle, WA</p>
+                                    </div>
+                                    <span class="job-badge badge-onsite"><i class="fa fa-building-o"></i> On-site</span>
+                                </div>
+                                <p class="mt-2">Seeking a DevOps Engineer to manage and scale cloud infrastructure,
+                                    implement CI/CD pipelines, and ensure system reliability.</p>
+                                <div class="mb-2">
+                                    <span class="job-tag"><i class="fa fa-docker"></i> Docker</span>
+                                    <span class="job-tag"><i class="fa fa-kubernetes"></i> Kubernetes</span>
+                                    <span class="job-tag"><i class="fa fa-jenkins"></i> Jenkins</span>
+                                    <span class="job-tag"><i class="fa fa-aws"></i> AWS</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                    <div>
+                                        <span class="salary-text"><i class="fa fa-usd"></i> $130k - $180k</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-briefcase"></i> Full-time</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-calendar"></i> Posted 1 week ago</span>
+                                    </div>
+                                    <a href="/apply?job=devops-engineer" class="btn btn-apply"><i
+                                            class="fa fa-send"></i> Apply Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Card 4 -->
+                <div class="card job-card">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="company-logo">
+                                    <i class="fa fa-meta"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                    <div>
+                                        <h3 class="job-title">Data Engineer</h3>
+                                        <p class="company-name"><i class="fa fa-building"></i> Meta <span
+                                                class="text-muted mx-2">•</span> <i class="fa fa-map-marker"></i>
+                                            Austin, TX</p>
+                                    </div>
+                                    <span class="job-badge badge-remote"><i class="fa fa-wifi"></i> Remote</span>
+                                </div>
+                                <p class="mt-2">Build and maintain scalable data pipelines, work with big data
+                                    technologies, and ensure data quality and reliability.</p>
+                                <div class="mb-2">
+                                    <span class="job-tag"><i class="fa fa-python"></i> Python</span>
+                                    <span class="job-tag"><i class="fa fa-database"></i> SQL</span>
+                                    <span class="job-tag"><i class="fa fa-apache"></i> Spark</span>
+                                    <span class="job-tag"><i class="fa fa-cloud"></i> Airflow</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                    <div>
+                                        <span class="salary-text"><i class="fa fa-usd"></i> $110k - $150k</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-briefcase"></i> Full-time</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-calendar"></i> Posted 4 days ago</span>
+                                    </div>
+                                    <a href="/apply?job=data-engineer" class="btn btn-apply"><i class="fa fa-send"></i>
+                                        Apply Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Card 5 -->
+                <div class="card job-card">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-auto">
+                                <div class="company-logo">
+                                    <i class="fa fa-apple"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap">
+                                    <div>
+                                        <h3 class="job-title">iOS Mobile Developer</h3>
+                                        <p class="company-name"><i class="fa fa-building"></i> Apple <span
+                                                class="text-muted mx-2">•</span> <i class="fa fa-map-marker"></i>
+                                            Cupertino, CA</p>
+                                    </div>
+                                    <span class="job-badge badge-hybrid"><i class="fa fa-exchange"></i> Hybrid</span>
+                                </div>
+                                <p class="mt-2">Develop innovative iOS applications using Swift and SwiftUI. Work on
+                                    exciting projects that impact millions of users.</p>
+                                <div class="mb-2">
+                                    <span class="job-tag"><i class="fa fa-apple"></i> Swift</span>
+                                    <span class="job-tag"><i class="fa fa-code"></i> SwiftUI</span>
+                                    <span class="job-tag"><i class="fa fa-database"></i> CoreData</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+                                    <div>
+                                        <span class="salary-text"><i class="fa fa-usd"></i> $115k - $155k</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-briefcase"></i> Full-time</span>
+                                        <span class="text-muted mx-2">•</span>
+                                        <span><i class="fa fa-calendar"></i> Posted 5 days ago</span>
+                                    </div>
+                                    <a href="/apply?job=ios-developer" class="btn btn-apply"><i class="fa fa-send"></i>
+                                        Apply Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1"><i class="fa fa-chevron-left"></i></a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="fa fa-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <%- include('includes/footer') %>
