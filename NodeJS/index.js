@@ -61,8 +61,103 @@ app.get('/contact', (req, res) => {
     res.render('contact', { currentPage: 'contact' });
 });
 
-app.get('/jobs', (req, res) => {
-    res.render('jobs', { currentPage: 'jobs' });
+// Jobs Route - Fetch all jobs from database
+app.get('/jobs', async (req, res) => {
+    try {
+        const db = mongoose.connection.db;
+        const collection = db.collection('job');
+
+        // Fetch all jobs that are active
+        const jobs = await collection.find({
+            status: 'active'
+        }).sort({ createdAt: -1 }).toArray(); // Sort by newest first
+
+        console.log(`✅ Found ${jobs.length} active jobs`);
+
+        // Get total count for display
+        const totalJobs = jobs.length;
+
+        res.render('jobs', {
+            currentPage: 'jobs',
+            jobs: jobs,
+            totalJobs: totalJobs,
+            error: null
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching jobs:', error);
+        res.render('jobs', {
+            currentPage: 'jobs',
+            jobs: [],
+            totalJobs: 0,
+            error: 'Could not load jobs. Please try again later.'
+        });
+    }
+});
+// View Job - Client Side (Public)
+app.get('/job/:id', async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        const db = mongoose.connection.db;
+        const collection = db.collection('job');
+
+        // Handle ObjectId
+        let id = jobId;
+        if (typeof jobId === 'string' && jobId.length === 24) {
+            const { ObjectId } = require('mongodb');
+            id = new ObjectId(jobId);
+        }
+
+        // Find the job
+        const job = await collection.findOne({
+            _id: id,
+            status: 'active' // Only show active jobs to public
+        });
+
+        // Check if job exists
+        if (!job) {
+            return res.render('job-not-found', {
+                title: 'Job Not Found',
+                currentPage: 'jobs'
+            });
+        }
+
+        // Increment views
+        await collection.updateOne(
+            { _id: id },
+            { $inc: { views: 1 } }
+        );
+
+        // Get similar jobs (same category or skills)
+        const similarJobs = await collection.find({
+            _id: { $ne: id },
+            status: 'active',
+            $or: [
+                { type: job.type },
+                { skills: { $in: job.skills || [] } }
+            ]
+        })
+            .limit(4)
+            .sort({ createdAt: -1 })
+            .toArray();
+
+        res.render('job-detail', {
+            currentPage: 'jobs',
+            title: job.title + ' - JobHub',
+            job: job,
+            similarJobs: similarJobs,
+            user: req.session?.user || null
+        });
+
+    } catch (error) {
+        console.error('❌ Error viewing job:', error);
+        res.render('job-not-found', {
+            title: 'Job Not Found',
+            currentPage: 'jobs',
+            error: 'Could not load job details. Please try again.'
+        });
+    }
 });
 // Create New Job Route
 app.get('/creat-new-job', (req, res) => {
@@ -338,26 +433,153 @@ app.get('/post-new-job', (req, res) => {
         totalViews: 1234
     });
 });
-// My jobs
+// My Jobs
 app.get('/my-jobs', async (req, res) => {
-    const db = mongoose.connection.db;
-    const collection = db.collection('job');
+    try {
+        // Check if user is logged in
+        if (!req.session || !req.session.userId) {
+            console.log('❌ No userId in session. Redirecting to login.');
+            return res.redirect('/login');
+        }
 
-    const result = await collection.find({
-        user_id: req.session.userId
-    }).toArray();
+        const db = mongoose.connection.db;
+        const collection = db.collection('job');
 
-    //  console.log(req.session.userId);
-    res.render('afterlogin/layouts/dashboard', {
-        body: 'myjobs',  // This loads afterlogin/dashboard.ejs
-        title: 'My Jobs',
-        activePage: 'myjobs',
-        userName: 'John Doe',
-        userEmail: 'john@example.com',
-        totalJobs: 12,
-        activeJobs: 8,
-        totalViews: 1234
-    });
+        // Handle different ID types
+        let userId = req.session.userId;
+        if (typeof userId === 'string' && userId.length === 24) {
+            userId = userId.toString();
+        }
+        console.log('user id is', userId);
+        // Fetch jobs for this user
+        const result = await collection.find({
+            user_id: userId
+        }).toArray();
+
+        console.log(`✅ Found ${result.length} jobs for user ${req.session.userId}`);
+
+        // Calculate stats
+        const totalJobs = result.length;
+        const activeJobs = result.filter(job =>
+            job.status === 'active' || job.status === 'Active'
+        ).length;
+        const totalViews = result.reduce((sum, job) => sum + (job.views || 0), 0);
+
+        // Get user info from session
+        const user = req.session.user || {
+            name: 'John Doe',
+            email: 'john@example.com'
+        };
+
+        res.render('afterlogin/layouts/dashboard', {
+            body: 'myjobs',
+            title: 'My Jobs',
+            activePage: 'myjobs',
+            userName: user.name || 'John Doe',
+            userEmail: user.email || 'john@example.com',
+            totalJobs: totalJobs,
+            activeJobs: activeJobs,
+            totalViews: totalViews,
+            jobs: result
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching jobs:', error);
+
+        res.render('afterlogin/layouts/dashboard', {
+            body: 'myjobs',
+            title: 'My Jobs',
+            activePage: 'myjobs',
+            userName: 'John Doe',
+            userEmail: 'john@example.com',
+            totalJobs: 0,
+            activeJobs: 0,
+            totalViews: 0,
+            jobs: [],
+            error: 'Could not load your jobs. Please try again.'
+        });
+    }
+});
+// View Job Details
+app.get('/admin/job/:id', async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Check if user is logged in
+        if (!req.session || !req.session.userId) {
+            console.log('❌ No userId in session. Redirecting to login.');
+            return res.redirect('/login');
+        }
+
+        const db = mongoose.connection.db;
+        const collection = db.collection('job');
+
+        // Handle ObjectId
+        let id = jobId;
+        if (typeof jobId === 'string' && jobId.length === 24) {
+            const { ObjectId } = require('mongodb');
+            id = new ObjectId(jobId);
+        }
+
+        // Find the job
+        const job = await collection.findOne({
+            _id: id
+        });
+
+        // Check if job exists
+        if (!job) {
+            console.log('❌ Job not found');
+            return res.redirect('/my-jobs?error=Job not found');
+        }
+
+        // Check if user owns this job
+        const userIdStr = req.session.userId.toString();
+        const jobUserId = job.user_id ? job.user_id.toString() : '';
+
+        if (userIdStr !== jobUserId) {
+            console.log('❌ User does not own this job');
+            return res.redirect('/my-jobs?error=You are not authorized to view this job');
+        }
+
+        // Increment views
+        await collection.updateOne(
+            { _id: id },
+            { $inc: { views: 1 } }
+        );
+
+        // Get user info from session
+        const user = req.session.user || {
+            name: 'John Doe',
+            email: 'john@example.com'
+        };
+
+        // Get all jobs for stats
+        const allJobs = await collection.find({
+            user_id: userIdStr
+        }).toArray();
+
+        const totalJobs = allJobs.length;
+        const activeJobs = allJobs.filter(j =>
+            j.status === 'active' || j.status === 'Active'
+        ).length;
+        const totalViews = allJobs.reduce((sum, j) => sum + (j.views || 0), 0);
+
+        res.render('afterlogin/layouts/dashboard', {
+            body: 'job-details',
+            title: job.title,
+            activePage: 'myjobs',
+            userName: user.name || 'John Doe',
+            userEmail: user.email || 'john@example.com',
+            totalJobs: totalJobs,
+            activeJobs: activeJobs,
+            totalViews: totalViews,
+            job: job
+        });
+
+    } catch (error) {
+        console.error('❌ Error viewing job:', error);
+        res.redirect('/my-jobs?error=Could not load job details');
+    }
 });
 // Applicatoins
 app.get('/applications', (req, res) => {
@@ -371,6 +593,229 @@ app.get('/applications', (req, res) => {
         activeJobs: 8,
         totalViews: 1234
     });
+});
+// Edit Job - Show Form
+// Edit Job - Show Form
+app.get('/edit-job/:id', async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Check if user is logged in
+        if (!req.session || !req.session.userId) {
+            console.log('❌ No userId in session. Redirecting to login.');
+            return res.redirect('/login');
+        }
+
+        const db = mongoose.connection.db;
+        const collection = db.collection('job');
+
+        // Handle ObjectId
+        let id = jobId;
+        if (typeof jobId === 'string' && jobId.length === 24) {
+            const { ObjectId } = require('mongodb');
+            id = new ObjectId(jobId);
+        }
+
+        // Find the job
+        const job = await collection.findOne({
+            _id: id
+        });
+
+        // Check if job exists
+        if (!job) {
+            console.log('❌ Job not found');
+            return res.redirect('/my-jobs?error=Job not found');
+        }
+
+        // Check if user owns this job
+        const userIdStr = req.session.userId.toString();
+        const jobUserId = job.user_id ? job.user_id.toString() : '';
+
+        if (userIdStr !== jobUserId) {
+            console.log('❌ User does not own this job');
+            return res.redirect('/my-jobs?error=You are not authorized to edit this job');
+        }
+
+        // Get user info from session
+        const user = req.session.user || {
+            name: 'John Doe',
+            email: 'john@example.com'
+        };
+
+        // Get all jobs for stats
+        const allJobs = await collection.find({
+            user_id: userIdStr
+        }).toArray();
+
+        const totalJobs = allJobs.length;
+        const activeJobs = allJobs.filter(j =>
+            j.status === 'active' || j.status === 'Active'
+        ).length;
+        const totalViews = allJobs.reduce((sum, j) => sum + (j.views || 0), 0);
+
+        // Convert arrays to strings for form fields
+        if (Array.isArray(job.skills)) {
+            job.skills = job.skills.join(', ');
+        }
+        if (Array.isArray(job.requirements)) {
+            job.requirements = job.requirements.join('\n');
+        }
+        if (Array.isArray(job.benefits)) {
+            job.benefits = job.benefits.join('\n');
+        }
+
+        // ✅ Pass query parameters to the view
+        const success = req.query.success || null;
+        const error = req.query.error || null;
+
+        res.render('afterlogin/layouts/dashboard', {
+            body: 'edit-job',
+            title: 'Edit Job',
+            activePage: 'myjobs',
+            userName: user.name || 'John Doe',
+            userEmail: user.email || 'john@example.com',
+            totalJobs: totalJobs,
+            activeJobs: activeJobs,
+            totalViews: totalViews,
+            job: job,
+            errors: null,
+            isEdit: true,
+            success: success,  // ✅ Pass success message
+            error: error       // ✅ Pass error message
+        });
+
+    } catch (error) {
+        console.error('❌ Error loading edit job:', error);
+        res.redirect('/my-jobs?error=Could not load job for editing');
+    }
+});
+// Update Job - Save Changes
+app.post('/update-job/:id', async (req, res) => {
+    try {
+        const jobId = req.params.id;
+
+        // Check if user is logged in
+        if (!req.session || !req.session.userId) {
+            console.log('❌ No userId in session. Redirecting to login.');
+            return res.redirect('/login');
+        }
+
+        const db = mongoose.connection.db;
+        const collection = db.collection('job');
+
+        // Handle ObjectId
+        let id = jobId;
+        if (typeof jobId === 'string' && jobId.length === 24) {
+            const { ObjectId } = require('mongodb');
+            id = new ObjectId(jobId);
+        }
+
+        // Extract form data
+        const {
+            title,
+            type,
+            location,
+            salary,
+            skills,
+            description,
+            requirements,
+            vacancies,
+            experience,
+            status,
+            benefits
+        } = req.body;
+
+        // Validation
+        const errors = [];
+
+        if (!title || title.trim().length < 3) {
+            errors.push('Job title is required and must be at least 3 characters');
+        }
+        if (!type) errors.push('Please select a job type');
+        if (!location || location.trim().length < 2) errors.push('Location is required');
+        if (!skills || skills.trim().length < 2) errors.push('Please enter at least one skill');
+        if (!description || description.trim().length < 20) {
+            errors.push('Job description must be at least 20 characters');
+        }
+        if (!requirements || requirements.trim().length < 10) {
+            errors.push('Job requirements must be at least 10 characters');
+        }
+        if (!vacancies || parseInt(vacancies) < 1) {
+            errors.push('Number of vacancies must be at least 1');
+        }
+        if (!experience) errors.push('Please select required experience level');
+
+        if (errors.length > 0) {
+            const user = req.session?.user || {
+                name: 'John Doe',
+                email: 'john@example.com'
+            };
+
+            const job = req.body;
+            job._id = jobId;
+
+            const allJobs = await collection.find({
+                user_id: req.session.userId.toString()
+            }).toArray();
+
+            return res.render('afterlogin/layouts/dashboard', {
+                body: 'edit-job',
+                title: 'Edit Job',
+                activePage: 'myjobs',
+                userName: user.name || 'John Doe',
+                userEmail: user.email || 'john@example.com',
+                totalJobs: allJobs.length,
+                activeJobs: allJobs.filter(j => j.status === 'active').length,
+                totalViews: allJobs.reduce((sum, j) => sum + (j.views || 0), 0),
+                job: job,
+                errors: errors,
+                isEdit: true
+            });
+        }
+
+        // Process skills and requirements
+        const skillsArray = skills.split(',').map(s => s.trim()).filter(s => s);
+        const requirementsArray = requirements.split('\n').filter(r => r.trim());
+        const benefitsArray = benefits ? benefits.split('\n').filter(b => b.trim()) : [];
+
+        // Update job
+        const result = await collection.updateOne(
+            {
+                _id: id,
+                user_id: req.session.userId.toString()
+            },
+            {
+                $set: {
+                    title: title.trim(),
+                    type: type,
+                    location: location.trim(),
+                    salary: salary ? salary.trim() : 'Negotiable',
+                    skills: skillsArray,
+                    description: description.trim(),
+                    requirements: requirementsArray,
+                    vacancies: parseInt(vacancies),
+                    experience: experience,
+                    status: status || 'active',
+                    benefits: benefitsArray,
+                    updatedAt: new Date(),
+                    isActive: status === 'active' ? true : false
+                }
+            }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.redirect('/my-jobs?error=Job not found or you are not authorized');
+        }
+
+        console.log('✅ Job updated successfully:', jobId);
+
+        req.session.success = 'Job updated successfully!';
+        res.redirect(`/job/${jobId}?success=Job updated successfully`);
+
+    } catch (error) {
+        console.error('❌ Error updating job:', error);
+        res.redirect(`/edit-job/${req.params.id}?error=Could not update job`);
+    }
 });
 // shortlist
 app.get('/short-list', (req, res) => {

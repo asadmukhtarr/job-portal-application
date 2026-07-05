@@ -1,0 +1,448 @@
+<!-- views/afterlogin/job-details.ejs -->
+<div>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/dashboard" class="text-decoration-none">
+                    <i class="fa fa-dashboard me-1"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/my-jobs" class="text-decoration-none">
+                    <i class="fa fa-briefcase me-1"></i> My Jobs
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <%= job.title %>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Job Header Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h3 class="mb-0">
+                        <i class="fa fa-briefcase me-2"></i>
+                        <%= job.title %>
+                    </h3>
+                    <small class="opacity-75">
+                        <i class="fa fa-calendar me-1"></i>
+                        Posted: <%= job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric' , month: 'long' , day: 'numeric' }) : 'N/A' %>
+                            &nbsp;|&nbsp;
+                            <i class="fa fa-clock-o me-1"></i>
+                            <%= job.createdAt ? new Date(job.createdAt).toLocaleTimeString('en-US', { hour: '2-digit' ,
+                                minute: '2-digit' }) : 'N/A' %>
+                    </small>
+                </div>
+                <div>
+                    <a href="/edit-job/<%= job._id %>" class="btn btn-light btn-sm me-2">
+                        <i class="fa fa-edit me-1"></i> Edit
+                    </a>
+                    <button class="btn btn-danger btn-sm" onclick="deleteJob('<%= job._id %>', '<%= job.title %>')">
+                        <i class="fa fa-trash me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Status and Quick Info -->
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fa fa-tag fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Status</small>
+                            <% const status=job.status || 'active' ; const statusBadge={ 'active' : 'success' , 'Active'
+                                : 'success' , 'draft' : 'secondary' , 'Draft' : 'secondary' , 'closed' : 'danger'
+                                , 'Closed' : 'danger' , 'expired' : 'dark' }; const statusLabel={ 'active' : 'Active'
+                                , 'Active' : 'Active' , 'draft' : 'Draft' , 'Draft' : 'Draft' , 'closed' : 'Closed'
+                                , 'Closed' : 'Closed' , 'expired' : 'Expired' }; %>
+                                <span class="badge bg-<%= statusBadge[status] || 'secondary' %> fs-6">
+                                    <i class="fa fa-circle me-1" style="font-size: 8px;"></i>
+                                    <%= statusLabel[status] || status %>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fa fa-users fa-2x text-success"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Vacancies</small>
+                            <strong class="fs-5">
+                                <%= job.vacancies || 1 %>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fa fa-eye fa-2x text-info"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Views</small>
+                            <strong class="fs-5">
+                                <%= job.views || 0 %>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fa fa-file-text-o fa-2x text-warning"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Applications</small>
+                            <strong class="fs-5">
+                                <%= job.applications || 0 %>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Details Grid -->
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Job Description -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fa fa-file-text text-primary me-2"></i>
+                        Job Description
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" style="white-space: pre-line;">
+                        <%= job.description || 'No description provided.' %>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Requirements -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fa fa-check-circle text-success me-2"></i>
+                        Requirements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (job.requirements && job.requirements.length> 0) { %>
+                        <ul class="mb-0">
+                            <% if (typeof job.requirements==='string' ) { %>
+                                <% const reqArray=job.requirements.split('\n').filter(r=> r.trim()); %>
+                                    <% reqArray.forEach(req=> { %>
+                                        <li>
+                                            <%= req.replace(/^[•\-*\d+.]\s*/, '' ) %>
+                                        </li>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <% job.requirements.forEach(req=> { %>
+                                                    <li>
+                                                        <%= req %>
+                                                    </li>
+                                                    <% }) %>
+                                                        <% } %>
+                        </ul>
+                        <% } else { %>
+                            <p class="text-muted mb-0">No specific requirements listed.</p>
+                            <% } %>
+                </div>
+            </div>
+
+            <!-- Benefits -->
+            <% if (job.benefits && (job.benefits.length> 0 || (typeof job.benefits === 'string' &&
+                job.benefits.trim()))) { %>
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fa fa-gift text-warning me-2"></i>
+                            Benefits & Perks
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (typeof job.benefits==='string' ) { %>
+                            <ul class="mb-0">
+                                <% const benArray=job.benefits.split('\n').filter(b=> b.trim()); %>
+                                    <% benArray.forEach(ben=> { %>
+                                        <li>
+                                            <%= ben.replace(/^[•\-*\d+.]\s*/, '' ) %>
+                                        </li>
+                                        <% }) %>
+                            </ul>
+                            <% } else { %>
+                                <ul class="mb-0">
+                                    <% job.benefits.forEach(ben=> { %>
+                                        <li>
+                                            <%= ben %>
+                                        </li>
+                                        <% }) %>
+                                </ul>
+                                <% } %>
+                    </div>
+                </div>
+                <% } %>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Job Details Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fa fa-info-circle text-primary me-2"></i>
+                        Job Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Job Type</small>
+                        <span
+                            class="badge bg-<%= job.type === 'Full-time' ? 'primary' : job.type === 'Part-time' ? 'info' : job.type === 'Contract' ? 'warning' : 'secondary' %> fs-6">
+                            <%= job.type || 'N/A' %>
+                        </span>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Location</small>
+                        <div>
+                            <i class="fa fa-map-marker text-danger me-1"></i>
+                            <strong>
+                                <%= job.location || 'Remote' %>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Salary Range</small>
+                        <div>
+                            <i class="fa fa-money text-success me-1"></i>
+                            <strong>
+                                <%= job.salary || 'Negotiable' %>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Experience Required</small>
+                        <div>
+                            <i class="fa fa-graduation-cap text-info me-1"></i>
+                            <strong>
+                                <%= job.experience || 'Not specified' %>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Posted Date</small>
+                        <div>
+                            <i class="fa fa-calendar text-primary me-1"></i>
+                            <strong>
+                                <%= job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-US', {
+                                    year: 'numeric' , month: 'long' , day: 'numeric' }) : 'N/A' %>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Last Updated</small>
+                        <div>
+                            <i class="fa fa-refresh text-warning me-1"></i>
+                            <strong>
+                                <%= job.updatedAt ? new Date(job.updatedAt).toLocaleDateString('en-US', {
+                                    year: 'numeric' , month: 'long' , day: 'numeric' }) : 'N/A' %>
+                            </strong>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div>
+                        <small class="text-muted d-block">Job ID</small>
+                        <code class="text-muted small"><%= job._id %></code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fa fa-code text-primary me-2"></i>
+                        Required Skills
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (job.skills && job.skills.length> 0) { %>
+                        <div class="d-flex flex-wrap gap-2">
+                            <% if (typeof job.skills==='string' ) { %>
+                                <% const skillsArray=job.skills.split(',').map(s=> s.trim()).filter(s => s); %>
+                                    <% skillsArray.forEach(skill=> { %>
+                                        <span class="badge bg-primary bg-gradient p-2 fs-6">
+                                            <i class="fa fa-tag me-1"></i>
+                                            <%= skill %>
+                                        </span>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <% job.skills.forEach(skill=> { %>
+                                                    <span class="badge bg-primary bg-gradient p-2 fs-6">
+                                                        <i class="fa fa-tag me-1"></i>
+                                                        <%= skill %>
+                                                    </span>
+                                                    <% }) %>
+                                                        <% } %>
+                        </div>
+                        <% } else { %>
+                            <p class="text-muted mb-0">No skills listed.</p>
+                            <% } %>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/edit-job/<%= job._id %>" class="btn btn-primary">
+                            <i class="fa fa-edit me-2"></i> Edit Job
+                        </a>
+                        <button class="btn btn-outline-success"
+                            onclick="toggleStatus('<%= job._id %>', '<%= job.status %>')">
+                            <i
+                                class="fa fa-toggle-<%= job.status === 'active' || job.status === 'Active' ? 'on' : 'off' %> me-2"></i>
+                            <%= job.status==='active' || job.status==='Active' ? 'Deactivate' : 'Activate' %> Job
+                        </button>
+                        <a href="/my-jobs" class="btn btn-outline-secondary">
+                            <i class="fa fa-arrow-left me-2"></i> Back to My Jobs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        border: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background-color: #f8f9fa;
+    }
+
+    .badge.bg-primary.bg-gradient {
+        transition: all 0.3s ease;
+    }
+
+    .badge.bg-primary.bg-gradient:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .breadcrumb-item a {
+        color: #667eea;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #764ba2;
+    }
+
+    ul {
+        padding-left: 1.5rem;
+    }
+
+    ul li {
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .card-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .col-6 {
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    // Delete job
+    function deleteJob(jobId, jobTitle) {
+        if (confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone.`)) {
+            fetch(`/delete-job/${jobId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/my-jobs?success=Job deleted successfully';
+                    } else {
+                        alert('Error deleting job: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the job.');
+                });
+        }
+    }
+
+    // Toggle job status (activate/deactivate)
+    function toggleStatus(jobId, currentStatus) {
+        const newStatus = currentStatus === 'active' || currentStatus === 'Active' ? 'closed' : 'active';
+        const action = newStatus === 'active' ? 'activate' : 'deactivate';
+
+        if (confirm(`Are you sure you want to ${action} this job?`)) {
+            fetch(`/toggle-job-status/${jobId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Error updating status: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the job status.');
+                });
+        }
+    }
+</script>
